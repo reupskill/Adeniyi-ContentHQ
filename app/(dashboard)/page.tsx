@@ -120,7 +120,7 @@ function MiniCalendar() {
       <div className="grid gap-0" style={{ gridTemplateColumns: "repeat(7,1fr)" }}>
         {days.map((d, i) => <div key={i} className="text-center text-[10px] font-semibold py-1" style={{ color: "var(--text-faint)", letterSpacing: "0.06em" }}>{d}</div>)}
         {cells.map((day, i) => {
-          const dots = day ? CAL_DOTS[day] : []
+          const dots = day ? (CAL_DOTS[day] ?? []) : []
           const isToday = day === TODAY
           return (
             <div key={i} className="flex flex-col items-center py-1 gap-0.5">

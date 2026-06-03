@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic"
+
 import { Sidebar } from "@/components/layout/Sidebar"
 import ToastProvider from "@/components/layout/ToastProvider"
 
