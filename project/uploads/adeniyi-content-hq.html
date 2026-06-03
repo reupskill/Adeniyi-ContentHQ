@@ -1,0 +1,1696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adeniyi Content HQ</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap');
+
+  :root {
+    --bg: #0e0e0f;
+    --bg2: #161618;
+    --bg3: #1e1e21;
+    --bg4: #26262a;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #f0ede8;
+    --text2: #9e9a94;
+    --text3: #6a6762;
+    --accent: #c9a96e;
+    --accent2: #e8d5b0;
+    --accent-bg: rgba(201,169,110,0.1);
+    --accent-border: rgba(201,169,110,0.25);
+    --green: #5a8c6e;
+    --green-bg: rgba(90,140,110,0.12);
+    --red: #b06060;
+    --sidebar-w: 230px;
+    --radius: 10px;
+    --radius-lg: 14px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+  }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar {
+    width: var(--sidebar-w);
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    flex-shrink: 0;
+    overflow-y: auto;
+  }
+
+  .sidebar-brand {
+    padding: 22px 18px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .brand-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 16px;
+    color: var(--accent2);
+    letter-spacing: 0.01em;
+    line-height: 1.2;
+  }
+
+  .brand-name.gold { color: var(--accent); }
+
+  .brand-sub {
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  .nav-section { padding: 14px 10px 4px; }
+
+  .nav-label {
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0 8px;
+    margin-bottom: 4px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text2);
+    transition: all 0.15s;
+    border: 1px solid transparent;
+    user-select: none;
+  }
+
+  .nav-item:hover { background: var(--bg3); color: var(--text); }
+
+  .nav-item.active {
+    background: var(--accent-bg);
+    border-color: var(--accent-border);
+    color: var(--accent2);
+  }
+
+  .nav-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--text3);
+    flex-shrink: 0;
+  }
+
+  .nav-item.active .nav-dot { background: var(--accent); }
+
+  .sidebar-footer {
+    margin-top: auto;
+    padding: 12px 10px;
+    border-top: 1px solid var(--border);
+  }
+
+  .sidebar-footer p {
+    font-size: 11px;
+    color: var(--text3);
+    margin-bottom: 8px;
+    padding: 0 8px;
+  }
+
+  /* ─── MAIN ─── */
+  .main {
+    flex: 1;
+    height: 100vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .topbar {
+    padding: 14px 28px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    gap: 12px;
+  }
+
+  .topbar-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 17px;
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  .topbar-right { display: flex; align-items: center; gap: 8px; }
+
+  /* ─── BUTTONS ─── */
+  .btn {
+    padding: 7px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: 1px solid var(--border2);
+    background: var(--bg3);
+    color: var(--text2);
+    font-weight: 500;
+    white-space: nowrap;
+    line-height: 1;
+  }
+
+  .btn:hover { background: var(--bg4); color: var(--text); }
+  .btn:active { transform: scale(0.98); }
+
+  .btn-accent {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #1a1408;
+    font-weight: 600;
+  }
+
+  .btn-accent:hover { background: var(--accent2); border-color: var(--accent2); }
+
+  .btn-sm { padding: 5px 12px; font-size: 12px; border-radius: 6px; }
+
+  .btn-ghost {
+    background: transparent;
+    border-color: transparent;
+    color: var(--text3);
+  }
+
+  .btn-ghost:hover { background: var(--bg3); color: var(--text2); border-color: var(--border); }
+
+  .btn-full { width: 100%; margin-bottom: 6px; }
+
+  /* ─── CONTENT AREA ─── */
+  .content-area { padding: 26px 28px; flex: 1; }
+
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* ─── CARDS ─── */
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  .card-title {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 14px;
+  }
+
+  /* ─── FORM ─── */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .form-full { grid-column: 1 / -1; }
+
+  .field { display: flex; flex-direction: column; gap: 6px; }
+
+  label { font-size: 12px; color: var(--text3); letter-spacing: 0.02em; }
+
+  input[type="text"],
+  textarea,
+  select {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    padding: 9px 12px;
+    width: 100%;
+    transition: border 0.15s;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  input[type="text"]:focus,
+  textarea:focus,
+  select:focus { border-color: var(--accent-border); }
+
+  textarea { resize: vertical; min-height: 80px; line-height: 1.65; }
+
+  select option { background: var(--bg3); color: var(--text); }
+
+  /* ─── PILLS ─── */
+  .platform-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .pill {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border2);
+    font-size: 12px;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+
+  .pill:hover { border-color: var(--accent-border); color: var(--accent2); }
+
+  .pill.selected {
+    background: var(--accent-bg);
+    border-color: var(--accent);
+    color: var(--accent2);
+    font-weight: 500;
+  }
+
+  /* ─── OUTPUTS ─── */
+  .output-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 12px;
+  }
+
+  .output-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .output-label {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .output-actions { display: flex; gap: 6px; }
+
+  .output-text {
+    font-size: 13.5px;
+    line-height: 1.8;
+    color: var(--text2);
+    white-space: pre-wrap;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  /* ─── LOADING ─── */
+  .loading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 24px 20px;
+    color: var(--text3);
+    font-size: 13px;
+  }
+
+  .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid var(--border2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ─── TABS ─── */
+  .tabs {
+    display: flex;
+    gap: 2px;
+    background: var(--bg3);
+    border-radius: 8px;
+    padding: 3px;
+    margin-bottom: 16px;
+    width: fit-content;
+    flex-wrap: wrap;
+  }
+
+  .tab {
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    color: var(--text3);
+    transition: all 0.15s;
+    user-select: none;
+  }
+
+  .tab.active { background: var(--bg4); color: var(--text); font-weight: 500; }
+
+  /* ─── COUNTER ─── */
+  .counter-row { display: flex; align-items: center; gap: 10px; }
+
+  .counter-btn {
+    width: 30px; height: 30px;
+    border-radius: 6px;
+    border: 1px solid var(--border2);
+    background: var(--bg3);
+    color: var(--text);
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    user-select: none;
+    line-height: 1;
+  }
+
+  .counter-btn:hover { background: var(--bg4); }
+  .counter-val { font-size: 15px; color: var(--text); min-width: 22px; text-align: center; }
+
+  /* ─── TWEET CARDS ─── */
+  .tweet-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 8px;
+  }
+
+  .tweet-num { font-size: 10px; color: var(--accent); margin-bottom: 6px; font-weight: 600; letter-spacing: 0.06em; }
+  .tweet-text { font-size: 13.5px; color: var(--text2); line-height: 1.7; }
+
+  /* ─── SUBSTACK ─── */
+  .ss-section {
+    border-left: 2px solid var(--accent-border);
+    padding-left: 16px;
+    margin-bottom: 16px;
+  }
+
+  .ss-section-title { font-size: 12px; color: var(--accent2); font-weight: 600; margin-bottom: 5px; letter-spacing: 0.05em; text-transform: uppercase; }
+  .ss-section-body { font-size: 13.5px; color: var(--text2); line-height: 1.75; }
+
+  /* ─── IDEAS GRID ─── */
+  .ideas-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  .idea-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .idea-card:hover { border-color: var(--accent-border); background: var(--bg4); }
+
+  .idea-num { font-size: 10px; color: var(--accent); font-weight: 600; margin-bottom: 6px; letter-spacing: 0.05em; }
+  .idea-text { font-size: 13px; color: var(--text2); line-height: 1.5; }
+
+  /* ─── CALENDAR ─── */
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+  }
+
+  .cal-day-header {
+    font-size: 10px;
+    color: var(--text3);
+    text-align: center;
+    padding: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .cal-day {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+    min-height: 70px;
+  }
+
+  .cal-day:hover { border-color: var(--accent-border); }
+  .cal-day.has-content { border-color: rgba(201,169,110,0.15); }
+
+  .cal-day-num { font-size: 11px; color: var(--text3); margin-bottom: 4px; font-weight: 500; }
+  .cal-day-topic { font-size: 10px; color: var(--text2); line-height: 1.4; margin-top: 4px; }
+
+  .cal-cat-dot { width: 5px; height: 5px; border-radius: 50%; display: inline-block; margin-right: 3px; }
+
+  /* ─── CALENDAR MODAL ─── */
+  .cal-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cal-modal {
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-lg);
+    padding: 26px;
+    width: 480px;
+    max-height: 82vh;
+    overflow-y: auto;
+  }
+
+  .cal-modal-title { font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--text); margin-bottom: 18px; }
+  .cal-detail-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text3); margin-bottom: 4px; }
+  .cal-detail-value { font-size: 13.5px; color: var(--text2); line-height: 1.65; margin-bottom: 14px; }
+
+  /* ─── CONTENT BANK ─── */
+  .bank-item {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 8px;
+    transition: border 0.15s;
+  }
+
+  .bank-item:hover { border-color: var(--border2); }
+
+  .bank-item-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    gap: 10px;
+  }
+
+  .bank-item-title { font-size: 14px; color: var(--text); font-weight: 500; flex: 1; }
+
+  .bank-meta { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+
+  .badge {
+    font-size: 10px;
+    padding: 2px 9px;
+    border-radius: 4px;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+  }
+
+  .badge-platform { background: var(--accent-bg); color: var(--accent); border: 1px solid var(--accent-border); }
+  .badge-neutral { background: transparent; color: var(--text3); border: 1px solid var(--border); }
+
+  .bank-preview {
+    font-size: 12px;
+    color: var(--text3);
+    line-height: 1.55;
+    margin-bottom: 10px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* ─── FILTERS ─── */
+  .filters {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .filter-label { font-size: 12px; color: var(--text3); }
+
+  .filter-select {
+    padding: 5px 10px;
+    font-size: 12px;
+    width: auto;
+    height: auto;
+    border-radius: 6px;
+  }
+
+  /* ─── PROMPT TYPES ─── */
+  .prompt-types { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+
+  .prompt-type-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+  }
+
+  .prompt-type-card:hover,
+  .prompt-type-card.selected {
+    border-color: var(--accent-border);
+    background: var(--accent-bg);
+  }
+
+  .prompt-type-card.selected .pt-name { color: var(--accent2); }
+  .pt-name { font-size: 12px; color: var(--text2); line-height: 1.4; margin-top: 2px; }
+
+  /* ─── SECTION HEADER ─── */
+  .section-header { margin-bottom: 22px; }
+  .section-title { font-family: 'DM Serif Display', serif; font-size: 24px; color: var(--text); margin-bottom: 4px; }
+  .section-desc { font-size: 13px; color: var(--text3); }
+
+  /* ─── EMPTY STATE ─── */
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--text3); }
+  .empty-icon { font-size: 34px; margin-bottom: 14px; opacity: 0.35; }
+  .empty-text { font-size: 14px; color: var(--text3); margin-bottom: 6px; }
+  .empty-sub { font-size: 12px; color: var(--text3); opacity: 0.6; line-height: 1.6; max-width: 340px; margin: 0 auto; }
+
+  /* ─── DIVIDER ─── */
+  .divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+  /* ─── TOAST ─── */
+  #toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--bg4);
+    border: 1px solid var(--accent-border);
+    color: var(--accent2);
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+    z-index: 999;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  #toast.show { opacity: 1; }
+
+  /* ─── SCROLLBAR ─── */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 3px; }
+
+  /* ─── STATUS BADGE COLORS ─── */
+  .s-idea { background: rgba(90,140,110,0.12); color: #7ab894; border: 1px solid rgba(90,140,110,0.25); }
+  .s-draft { background: var(--accent-bg); color: var(--accent); border: 1px solid var(--accent-border); }
+  .s-ready { background: rgba(90,90,180,0.12); color: #9090d0; border: 1px solid rgba(90,90,180,0.25); }
+  .s-published { background: var(--green-bg); color: var(--green); border: 1px solid rgba(90,140,110,0.3); }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 900px) {
+    .sidebar { width: 190px; }
+    .form-grid { grid-template-columns: 1fr; }
+    .ideas-grid { grid-template-columns: 1fr; }
+    .prompt-types { grid-template-columns: 1fr 1fr; }
+    .content-area { padding: 20px 16px; }
+    .topbar { padding: 12px 16px; }
+  }
+
+  @media (max-width: 640px) {
+    body { flex-direction: column; overflow: auto; }
+    .sidebar { width: 100%; height: auto; flex-direction: row; flex-wrap: wrap; overflow: visible; }
+    .main { height: auto; overflow: visible; }
+    .cal-grid { grid-template-columns: repeat(5, 1fr); }
+    .prompt-types { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════ SIDEBAR ══════════════ -->
+<div class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-name">Adeniyi</div>
+    <div class="brand-name gold">Content HQ</div>
+    <div class="brand-sub">Thought Leadership Engine</div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Create</div>
+    <div class="nav-item active" onclick="navigate('input')"><div class="nav-dot"></div>Content Input</div>
+    <div class="nav-item" onclick="navigate('video')"><div class="nav-dot"></div>Video Script</div>
+    <div class="nav-item" onclick="navigate('linkedin')"><div class="nav-dot"></div>LinkedIn</div>
+    <div class="nav-item" onclick="navigate('twitter')"><div class="nav-dot"></div>X / Twitter</div>
+    <div class="nav-item" onclick="navigate('substack')"><div class="nav-dot"></div>Substack</div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Discover</div>
+    <div class="nav-item" onclick="navigate('daily')"><div class="nav-dot"></div>Daily Inspiration</div>
+    <div class="nav-item" onclick="navigate('calendar')"><div class="nav-dot"></div>Content Calendar</div>
+    <div class="nav-item" onclick="navigate('prompts')"><div class="nav-dot"></div>Prompt Generator</div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Library</div>
+    <div class="nav-item" onclick="navigate('bank')"><div class="nav-dot"></div>Content Bank</div>
+  </div>
+
+  <div class="sidebar-footer">
+    <p>Content Bank</p>
+    <button class="btn btn-sm btn-full" onclick="exportBank()">⬇ Export JSON</button>
+    <button class="btn btn-sm btn-full" onclick="document.getElementById('importFile').click()">⬆ Import JSON</button>
+    <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importBank(event)">
+  </div>
+</div>
+
+<!-- ══════════════ MAIN AREA ══════════════ -->
+<div class="main" id="mainArea">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-title" id="topbarTitle">Content Input</div>
+    <div class="topbar-right">
+      <button class="btn btn-sm btn-ghost" id="saveBtn" style="display:none;" onclick="saveCurrentToBank()">Save to Bank</button>
+      <button class="btn btn-sm btn-accent" id="generateBtn" onclick="handleGenerate()">Generate →</button>
+    </div>
+  </div>
+
+  <!-- ─── SECTION: INPUT ─── -->
+  <div class="section active content-area" id="sec-input">
+    <div class="section-header">
+      <div class="section-title">What's on your mind?</div>
+      <div class="section-desc">Fill in what you can. The more context, the sharper the output.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Core Idea</div>
+      <div class="form-grid">
+        <div class="field form-full">
+          <label>Core idea or topic</label>
+          <textarea id="inp-idea" placeholder="e.g. Most people confuse being busy with building something real…"></textarea>
+        </div>
+        <div class="field form-full">
+          <label>Personal story or observed example</label>
+          <textarea id="inp-story" placeholder="e.g. I had a client who was in 15 meetings a week but hadn't shipped a single feature in 3 months…"></textarea>
+        </div>
+        <div class="field">
+          <label>Target audience</label>
+          <input type="text" id="inp-audience" placeholder="e.g. Founders, product leaders, builders">
+        </div>
+        <div class="field">
+          <label>Main lesson or belief</label>
+          <input type="text" id="inp-lesson" placeholder="e.g. Busyness is a form of avoidance">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Platform &amp; Tone</div>
+      <div style="margin-bottom: 14px;">
+        <label style="display:block; margin-bottom:8px;">Platforms</label>
+        <div class="platform-pills">
+          <div class="pill selected" onclick="togglePill(this)" data-val="Video">📹 Video</div>
+          <div class="pill selected" onclick="togglePill(this)" data-val="LinkedIn">LinkedIn</div>
+          <div class="pill" onclick="togglePill(this)" data-val="X">X / Twitter</div>
+          <div class="pill" onclick="togglePill(this)" data-val="Substack">Substack</div>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Tone</label>
+          <select id="inp-tone">
+            <option>Calm and reflective</option>
+            <option>Sharp and challenging</option>
+            <option>Warm and personal</option>
+            <option>Executive and analytical</option>
+            <option>Deep and philosophical</option>
+            <option>Story-driven</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Content category</label>
+          <select id="inp-category">
+            <option>Mindset</option>
+            <option>Leadership</option>
+            <option>Business</option>
+            <option>Real Estate</option>
+            <option>Personal Growth</option>
+            <option>Relationships</option>
+            <option>Career</option>
+            <option>Philosophy</option>
+            <option>Productivity</option>
+            <option>Wealth</option>
+            <option>Self-awareness</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Philosophical lens</label>
+          <select id="inp-philosophy">
+            <option>Stoicism</option>
+            <option>Aristotle</option>
+            <option>Seneca</option>
+            <option>Marcus Aurelius</option>
+            <option>Nassim Taleb</option>
+            <option>Modern psychology</option>
+            <option>Systems thinking</option>
+            <option>First principles thinking</option>
+            <option>No philosophy reference</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>CTA type</label>
+          <select id="inp-cta">
+            <option>Reflective question</option>
+            <option>Direct challenge</option>
+            <option>Personal audit</option>
+            <option>Comment prompt</option>
+            <option>Save/share prompt</option>
+            <option>Newsletter signup</option>
+            <option>Soft sales CTA</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Output Settings</div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Business lens (optional)</label>
+          <input type="text" id="inp-business" placeholder="e.g. Startup, real estate, product development">
+        </div>
+        <div class="field">
+          <label>Number of output variations</label>
+          <div class="counter-row">
+            <div class="counter-btn" onclick="changeCount(-1)">−</div>
+            <div class="counter-val" id="countVal">1</div>
+            <div class="counter-btn" onclick="changeCount(1)">+</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SECTION: VIDEO SCRIPT ─── -->
+  <div class="section content-area" id="sec-video">
+    <div class="section-header">
+      <div class="section-title">Video Script</div>
+      <div class="section-desc">45–60 second scripts built for the camera</div>
+    </div>
+    <div id="video-output">
+      <div class="empty-state">
+        <div class="empty-icon">🎬</div>
+        <div class="empty-text">No script generated yet</div>
+        <div class="empty-sub">Fill in Content Input then click Generate</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SECTION: LINKEDIN ─── -->
+  <div class="section content-area" id="sec-linkedin">
+    <div class="section-header">
+      <div class="section-title">LinkedIn</div>
+      <div class="section-desc">Polished posts that feel human, not corporate</div>
+    </div>
+    <div id="linkedin-output">
+      <div class="empty-state">
+        <div class="empty-icon">💼</div>
+        <div class="empty-text">No LinkedIn post generated yet</div>
+        <div class="empty-sub">Fill in Content Input then click Generate</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SECTION: TWITTER ─── -->
+  <div class="section content-area" id="sec-twitter">
+    <div class="section-header">
+      <div class="section-title">X / Twitter</div>
+      <div class="section-desc">Sharp, contrarian, and worth the follow</div>
+    </div>
+    <div class="tabs" id="x-format-tabs">
+      <div class="tab active" onclick="selectXFormat('one-liner', this)">One-liner</div>
+      <div class="tab" onclick="selectXFormat('3-thread', this)">3-tweet thread</div>
+      <div class="tab" onclick="selectXFormat('5-thread', this)">5-tweet thread</div>
+      <div class="tab" onclick="selectXFormat('founder', this)">Founder lesson</div>
+      <div class="tab" onclick="selectXFormat('growth', this)">Growth lesson</div>
+    </div>
+    <div id="twitter-output">
+      <div class="empty-state">
+        <div class="empty-icon">𝕏</div>
+        <div class="empty-text">No X content generated yet</div>
+        <div class="empty-sub">Fill in Content Input then click Generate</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SECTION: SUBSTACK ─── -->
+  <div class="section content-area" id="sec-substack">
+    <div class="section-header">
+      <div class="section-title">Substack</div>
+      <div class="section-desc">Essays that make people think differently</div>
+    </div>
+    <div id="substack-output">
+      <div class="empty-state">
+        <div class="empty-icon">✍️</div>
+        <div class="empty-text">No Substack draft generated yet</div>
+        <div class="empty-sub">Fill in Content Input then click Generate</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SECTION: DAILY INSPIRATION ─── -->
+  <div class="section content-area" id="sec-daily">
+    <div class="section-header">
+      <div class="section-title">Daily Inspiration</div>
+      <div class="section-desc">Turn today's life into tomorrow's content</div>
+    </div>
+    <div class="card">
+      <div class="card-title">What's happening in your world?</div>
+      <div class="form-grid">
+        <div class="field"><label>Recent content theme</label><input type="text" id="daily-theme" placeholder="e.g. Standards, discipline, ownership"></div>
+        <div class="field"><label>Recent business or life event</label><input type="text" id="daily-event" placeholder="e.g. Fired a client who kept lowballing"></div>
+        <div class="field"><label>A frustration you noticed</label><input type="text" id="daily-frustration" placeholder="e.g. People who want results but avoid the process"></div>
+        <div class="field"><label>A mistake you made or observed</label><input type="text" id="daily-mistake" placeholder="e.g. Over-communicating to under-performers"></div>
+        <div class="field"><label>A belief you currently hold</label><input type="text" id="daily-belief" placeholder="e.g. Most people quit right before the breakthrough"></div>
+        <div class="field"><label>A lesson you keep repeating</label><input type="text" id="daily-lesson" placeholder="e.g. Your standards determine your outcomes"></div>
+        <div class="field"><label>A question you've been asking yourself</label><input type="text" id="daily-question" placeholder="e.g. Am I building or just managing?"></div>
+        <div class="field"><label>Something you disagree with online</label><input type="text" id="daily-disagree" placeholder="e.g. 'Work smarter not harder' is an excuse"></div>
+        <div class="field"><label>Something learned from building/leading</label><input type="text" id="daily-learned" placeholder="e.g. Culture is built in the decisions you make under pressure"></div>
+        <div class="field"><label>Something you're currently struggling with</label><input type="text" id="daily-struggle" placeholder="e.g. Letting go of control to scale"></div>
+      </div>
+    </div>
+    <div id="daily-output">
+      <div class="empty-state">
+        <div class="empty-icon">💡</div>
+        <div class="empty-text">Fill in your context above and click Generate</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SECTION: CONTENT BANK ─── -->
+  <div class="section content-area" id="sec-bank">
+    <div class="section-header">
+      <div class="section-title">Content Bank</div>
+      <div class="section-desc">Your saved ideas, drafts, and ready-to-publish content</div>
+    </div>
+    <div class="filters">
+      <span class="filter-label">Filter:</span>
+      <select class="filter-select" onchange="filterBank('platform', this.value)">
+        <option value="">All platforms</option>
+        <option>Video</option><option>LinkedIn</option><option>X</option><option>Substack</option><option>All</option>
+      </select>
+      <select class="filter-select" onchange="filterBank('status', this.value)">
+        <option value="">All statuses</option>
+        <option>Idea</option><option>Draft</option><option>Ready to Record</option><option>Published</option>
+      </select>
+    </div>
+    <div id="bank-output">
+      <div class="empty-state">
+        <div class="empty-icon">🗂</div>
+        <div class="empty-text">Your content bank is empty</div>
+        <div class="empty-sub">Generate content and click "Save to Bank". Export/import JSON to persist across sessions.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SECTION: CALENDAR ─── -->
+  <div class="section content-area" id="sec-calendar">
+    <div class="section-header">
+      <div class="section-title">Content Calendar</div>
+      <div class="section-desc">30 days of structured content — click any day for details</div>
+    </div>
+    <div style="display:flex; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
+      <div style="font-size:12px; color:var(--text3); display:flex; gap:10px; flex-wrap:wrap;">
+        <span><span class="cal-cat-dot" style="background:#c9a96e;"></span>Mindset</span>
+        <span><span class="cal-cat-dot" style="background:#7ab894;"></span>Leadership</span>
+        <span><span class="cal-cat-dot" style="background:#9090d0;"></span>Business</span>
+        <span><span class="cal-cat-dot" style="background:#d07090;"></span>Philosophy</span>
+        <span><span class="cal-cat-dot" style="background:#a09050;"></span>Real Estate</span>
+      </div>
+      <button class="btn btn-sm btn-accent" style="margin-left:auto;" onclick="generateCalendar()">Generate 30-Day Plan</button>
+    </div>
+    <div id="cal-grid-wrap">
+      <div class="empty-state">
+        <div class="empty-icon">📅</div>
+        <div class="empty-text">Click Generate to build your 30-day plan</div>
+      </div>
+    </div>
+    <div id="cal-modal" style="display:none;" class="cal-modal-overlay" onclick="if(event.target===this)this.style.display='none'">
+      <div class="cal-modal">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+          <div class="cal-modal-title" id="cal-modal-title">Day 1</div>
+          <button class="btn btn-sm btn-ghost" onclick="document.getElementById('cal-modal').style.display='none'">Close</button>
+        </div>
+        <div id="cal-modal-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── SECTION: PROMPTS ─── -->
+  <div class="section content-area" id="sec-prompts">
+    <div class="section-header">
+      <div class="section-title">Prompt Generator</div>
+      <div class="section-desc">Ready-to-use prompts for deeper content development in Claude or ChatGPT</div>
+    </div>
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-title">Select prompt type</div>
+      <div class="prompt-types" id="prompt-type-grid">
+        <div class="prompt-type-card selected" onclick="selectPromptType(this,'video_script')"><div class="pt-name">Generate video script</div></div>
+        <div class="prompt-type-card" onclick="selectPromptType(this,'substack')"><div class="pt-name">Expand into Substack</div></div>
+        <div class="prompt-type-card" onclick="selectPromptType(this,'linkedin')"><div class="pt-name">Convert to LinkedIn</div></div>
+        <div class="prompt-type-card" onclick="selectPromptType(this,'x_thread')"><div class="pt-name">Convert to X thread</div></div>
+        <div class="prompt-type-card" onclick="selectPromptType(this,'hooks')"><div class="pt-name">Create 10 hooks</div></div>
+        <div class="prompt-type-card" onclick="selectPromptType(this,'improve')"><div class="pt-name">Improve this script</div></div>
+        <div class="prompt-type-card" onclick="selectPromptType(this,'natural')"><div class="pt-name">Make more natural</div></div>
+        <div class="prompt-type-card" onclick="selectPromptType(this,'philosophical')"><div class="pt-name">Make philosophical</div></div>
+        <div class="prompt-type-card" onclick="selectPromptType(this,'personal')"><div class="pt-name">Make more personal</div></div>
+        <div class="prompt-type-card" onclick="selectPromptType(this,'founder')"><div class="pt-name">Make founder-led</div></div>
+        <div class="prompt-type-card" onclick="selectPromptType(this,'carousel')"><div class="pt-name">Create carousel slides</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Your context (paste your idea or draft)</div>
+      <textarea id="prompt-context" placeholder="Paste your idea, draft script, or notes here…" style="min-height:110px;"></textarea>
+    </div>
+    <div id="prompt-output">
+      <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <div class="empty-text">Select a prompt type and click Generate</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end .main -->
+
+<div id="toast"></div>
+
+<script>
+// ══════════════════════════════════════
+//  CONFIG
+// ══════════════════════════════════════
+const API_URL  = 'https://api.anthropic.com/v1/messages';
+const MODEL    = 'claude-sonnet-4-20250514';
+
+// ══════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════
+let currentSection   = 'input';
+let selectedXFormat  = 'one-liner';
+let selectedPromptType = 'video_script';
+let outputCount      = 1;
+let contentBank      = [];
+let calendarData     = [];
+let lastGenerated    = { section: '', content: '', title: '', platform: '' };
+
+const SECTION_TITLES = {
+  input:'Content Input', video:'Video Script', linkedin:'LinkedIn Post',
+  twitter:'X / Twitter', substack:'Substack Essay', daily:'Daily Inspiration',
+  calendar:'Content Calendar', prompts:'Prompt Generator', bank:'Content Bank'
+};
+
+// ══════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════
+function navigate(sec) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const el = document.getElementById('sec-' + sec);
+  if (el) el.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.getAttribute('onclick') && n.getAttribute('onclick').includes("'"+sec+"'")) n.classList.add('active');
+  });
+  document.getElementById('topbarTitle').textContent = SECTION_TITLES[sec] || sec;
+  currentSection = sec;
+
+  const saveBtn = document.getElementById('saveBtn');
+  const genBtn  = document.getElementById('generateBtn');
+
+  if (sec === 'bank') {
+    genBtn.style.display = 'none'; saveBtn.style.display = 'none'; renderBank();
+  } else if (sec === 'calendar') {
+    genBtn.style.display = 'none'; saveBtn.style.display = 'none';
+  } else {
+    genBtn.style.display = '';
+    saveBtn.style.display = lastGenerated.section === sec && lastGenerated.content ? '' : 'none';
+  }
+}
+
+// ══════════════════════════════════════
+//  UI HELPERS
+// ══════════════════════════════════════
+function togglePill(el) { el.classList.toggle('selected'); }
+
+function changeCount(d) {
+  outputCount = Math.max(1, Math.min(5, outputCount + d));
+  document.getElementById('countVal').textContent = outputCount;
+}
+
+function selectXFormat(fmt, el) {
+  selectedXFormat = fmt;
+  document.querySelectorAll('#x-format-tabs .tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function selectPromptType(el, type) {
+  selectedPromptType = type;
+  document.querySelectorAll('.prompt-type-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+function copyText(text) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard'));
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+    showToast('Copied to clipboard');
+  }
+}
+
+function escHTML(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function setLoading(id, msg) {
+  document.getElementById(id).innerHTML =
+    `<div class="loading"><div class="spinner"></div>${msg || 'Generating…'}</div>`;
+}
+
+function outputCard(label, content, extra) {
+  const id = 'oc' + Date.now() + Math.random().toString(36).slice(2,6);
+  return `<div class="output-card">
+    <div class="output-header">
+      <div class="output-label">${escHTML(label)}</div>
+      <div class="output-actions">
+        <button class="btn btn-sm btn-ghost" onclick="copyText(document.getElementById('${id}').textContent)">Copy</button>
+        ${extra || ''}
+      </div>
+    </div>
+    <div class="output-text" id="${id}">${escHTML(content)}</div>
+  </div>`;
+}
+
+// ══════════════════════════════════════
+//  INPUTS
+// ══════════════════════════════════════
+function getInputs() {
+  return {
+    idea:      (document.getElementById('inp-idea')||{}).value?.trim() || '',
+    story:     (document.getElementById('inp-story')||{}).value?.trim() || '',
+    audience:  (document.getElementById('inp-audience')||{}).value?.trim() || 'founders, product leaders, builders',
+    lesson:    (document.getElementById('inp-lesson')||{}).value?.trim() || '',
+    tone:      (document.getElementById('inp-tone')||{}).value || 'Calm and reflective',
+    category:  (document.getElementById('inp-category')||{}).value || 'Mindset',
+    philosophy:(document.getElementById('inp-philosophy')||{}).value || 'Stoicism',
+    cta:       (document.getElementById('inp-cta')||{}).value || 'Reflective question',
+    business:  (document.getElementById('inp-business')||{}).value?.trim() || '',
+    platforms: [...document.querySelectorAll('.pill.selected')].map(p => p.dataset.val)
+  };
+}
+
+// ══════════════════════════════════════
+//  CLAUDE API CALL
+// ══════════════════════════════════════
+async function callClaude(system, user) {
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ model: MODEL, max_tokens: 1000, system, messages: [{ role: 'user', content: user }] })
+  });
+  const data = await res.json();
+  if (data.error) throw new Error(data.error.message);
+  const textBlock = data.content && data.content.find(b => b.type === 'text');
+  if (!textBlock) throw new Error('No text in response');
+  return textBlock.text;
+}
+
+// ══════════════════════════════════════
+//  VIDEO SCRIPT
+// ══════════════════════════════════════
+async function generateVideoScript() {
+  const inp = getInputs();
+  if (!inp.idea) { showToast('Add your core idea first'); return; }
+  setLoading('video-output', 'Crafting your video script…');
+
+  const SYSTEM = `You are a ghostwriter for a founder, product leader, and builder who creates 45–60 second video scripts.
+Tone: calm, reflective, grounded — like a short podcast clip, never a motivational speech.
+Voice: warm, wise, experienced, honest, confident. No generic motivational language. No "unlock your potential" phrases.
+The default opening: "Let me challenge how you think for a second…"
+Write in natural spoken language — not formal writing. Sound like lived experience.
+Return the script with these clearly labelled sections on their own lines:
+HOOK | STORY | INSIGHT | CLOSE | CAPTION | ON-SCREEN TEXT | B-ROLL IDEAS | MUSIC MOOD | RECORDING DIRECTION`;
+
+  const USER = `Topic: ${inp.idea}
+${inp.story ? 'Story/Example: ' + inp.story : ''}
+Audience: ${inp.audience}
+Main lesson: ${inp.lesson || 'derive from topic'}
+Tone: ${inp.tone}
+Category: ${inp.category}
+Philosophical lens: ${inp.philosophy}
+CTA type: ${inp.cta}
+${inp.business ? 'Business lens: ' + inp.business : ''}
+
+Write ${outputCount > 1 ? outputCount + ' separate script variations' : 'one script'}. Each should be 45–60 seconds when spoken.`;
+
+  try {
+    const result = await callClaude(SYSTEM, USER);
+    const parts = parseLabelled(result, ['HOOK','STORY','INSIGHT','CLOSE','CAPTION','ON-SCREEN TEXT','B-ROLL IDEAS','MUSIC MOOD','RECORDING DIRECTION']);
+    let html = '';
+    if (parts.length > 0) {
+      parts.forEach(([lbl, txt]) => { html += outputCard(lbl, txt); });
+    } else {
+      html = outputCard('FULL SCRIPT', result);
+    }
+    document.getElementById('video-output').innerHTML = html;
+    lastGenerated = { section: 'video', content: result, title: inp.idea.slice(0,60), platform: 'Video' };
+    document.getElementById('saveBtn').style.display = '';
+  } catch(e) {
+    document.getElementById('video-output').innerHTML =
+      `<div class="output-card"><div class="output-text" style="color:var(--red);">Error: ${escHTML(e.message)}</div></div>`;
+  }
+}
+
+// ══════════════════════════════════════
+//  LINKEDIN
+// ══════════════════════════════════════
+async function generateLinkedIn() {
+  const inp = getInputs();
+  if (!inp.idea) { showToast('Add your core idea first'); return; }
+  setLoading('linkedin-output', 'Writing your LinkedIn post…');
+
+  const SYSTEM = `You are a ghostwriter for a thoughtful founder creating LinkedIn posts.
+Style: reflective, grounded, professional but deeply human. Short paragraphs. Strong opening line.
+Never corporate, never AI-sounding. No excessive emojis. Max 5 hashtags, only when genuinely useful.
+Pattern: Strong hook → Context/story → Insight → Practical reflection → Closing question.
+Return the post ready to copy-paste, nothing before or after it.`;
+
+  const USER = `Topic: ${inp.idea}
+${inp.story ? 'Story: ' + inp.story : ''}
+Lesson: ${inp.lesson}
+Audience: ${inp.audience}
+Tone: ${inp.tone}
+Philosophy: ${inp.philosophy}
+CTA: ${inp.cta}
+${outputCount > 1 ? 'Write ' + outputCount + ' variations. Separate each with ---' : 'Write one post.'}`;
+
+  try {
+    const result = await callClaude(SYSTEM, USER);
+    const variations = result.split(/---+/).map(s => s.trim()).filter(Boolean);
+    let html = '';
+    variations.forEach((v, i) => {
+      html += outputCard(variations.length > 1 ? `VARIATION ${i+1}` : 'LINKEDIN POST', v);
+    });
+    document.getElementById('linkedin-output').innerHTML = html;
+    lastGenerated = { section: 'linkedin', content: result, title: inp.idea.slice(0,60), platform: 'LinkedIn' };
+    document.getElementById('saveBtn').style.display = '';
+  } catch(e) {
+    document.getElementById('linkedin-output').innerHTML =
+      `<div class="output-card"><div class="output-text" style="color:var(--red);">Error: ${escHTML(e.message)}</div></div>`;
+  }
+}
+
+// ══════════════════════════════════════
+//  TWITTER / X
+// ══════════════════════════════════════
+async function generateTwitter() {
+  const inp = getInputs();
+  if (!inp.idea) { showToast('Add your core idea first'); return; }
+  setLoading('twitter-output', 'Writing your X content…');
+
+  const fmtMap = {
+    'one-liner':  'a single punchy tweet under 280 characters. Return only the tweet text.',
+    '3-thread':   'a 3-tweet thread. Label each tweet clearly as:\nTWEET 1:\nTWEET 2:\nTWEET 3:',
+    '5-thread':   'a 5-tweet thread. Label each tweet clearly as:\nTWEET 1:\nTWEET 2:\nTWEET 3:\nTWEET 4:\nTWEET 5:',
+    'founder':    'a founder reflection tweet — personal, grounded, honest. Under 280 characters.',
+    'growth':     'a personal growth lesson tweet — reflective and contrarian. Under 280 characters.'
+  };
+
+  const SYSTEM = `You are a ghostwriter for a founder on X/Twitter.
+Style: sharp, contrarian, reflective. Strong opening. Simple explanation. Sharp insight. Memorable close.
+Never generic motivational content. Sound like a real founder from lived experience. No hashtag spam.`;
+
+  const USER = `Topic: ${inp.idea}
+Lesson: ${inp.lesson}
+Format: ${fmtMap[selectedXFormat]}
+Tone: ${inp.tone}
+${outputCount > 1 ? 'Provide ' + outputCount + ' variations separated by ---.' : ''}`;
+
+  try {
+    const result = await callClaude(SYSTEM, USER);
+    let html = '';
+    if (selectedXFormat.includes('thread')) {
+      const parts = result.split(/TWEET\s*\d+\s*[:.\-]*/i).map(t => t.trim()).filter(Boolean);
+      if (parts.length > 1) {
+        parts.forEach((t, i) => {
+          html += `<div class="tweet-card">
+            <div class="tweet-num">TWEET ${i+1}</div>
+            <div class="tweet-text">${escHTML(t)}</div>
+            <div style="margin-top:10px;">
+              <button class="btn btn-sm btn-ghost" onclick="copyText(${JSON.stringify(t)})">Copy</button>
+            </div>
+          </div>`;
+        });
+      } else {
+        html = outputCard('X THREAD', result);
+      }
+    } else {
+      const variations = result.split(/---+/).map(s => s.trim()).filter(Boolean);
+      variations.forEach((v, i) => {
+        html += outputCard(variations.length > 1 ? `VARIATION ${i+1}` : 'X POST', v);
+      });
+    }
+    document.getElementById('twitter-output').innerHTML = html;
+    lastGenerated = { section: 'twitter', content: result, title: inp.idea.slice(0,60), platform: 'X' };
+    document.getElementById('saveBtn').style.display = '';
+  } catch(e) {
+    document.getElementById('twitter-output').innerHTML =
+      `<div class="output-card"><div class="output-text" style="color:var(--red);">Error: ${escHTML(e.message)}</div></div>`;
+  }
+}
+
+// ══════════════════════════════════════
+//  SUBSTACK
+// ══════════════════════════════════════
+async function generateSubstack() {
+  const inp = getInputs();
+  if (!inp.idea) { showToast('Add your core idea first'); return; }
+  setLoading('substack-output', 'Drafting your Substack essay…');
+
+  const SYSTEM = `You are a ghostwriter for a founder writing a thoughtful Substack essay.
+Tone: reflective, philosophical, grounded — like a long-form journal entry from a builder who has seen things. Real thinking on the page.
+NOT a listicle. NOT corporate. Use the following structure with clear section labels:
+TITLE OPTIONS | SUBTITLE | OPENING STORY | MAIN ARGUMENT | SECTION 1 | SECTION 2 | SECTION 3 | PRACTICAL REFLECTION | CLOSING PARAGRAPH | NEWSLETTER CTA`;
+
+  const USER = `Topic: ${inp.idea}
+${inp.story ? 'Story: ' + inp.story : ''}
+Lesson: ${inp.lesson}
+Philosophical lens: ${inp.philosophy}
+Tone: ${inp.tone}
+Audience: ${inp.audience}
+CTA type: ${inp.cta}
+
+Write the full essay outline and opening draft.`;
+
+  try {
+    const result = await callClaude(SYSTEM, USER);
+    const labels = ['TITLE OPTIONS','SUBTITLE','OPENING STORY','MAIN ARGUMENT','SECTION 1','SECTION 2','SECTION 3','PRACTICAL REFLECTION','CLOSING PARAGRAPH','NEWSLETTER CTA'];
+    const parts = parseLabelled(result, labels);
+    let html = '';
+    if (parts.length > 0) {
+      parts.forEach(([lbl, txt]) => {
+        html += `<div class="ss-section">
+          <div class="ss-section-title">${escHTML(lbl)}</div>
+          <div class="ss-section-body">${escHTML(txt)}</div>
+        </div>`;
+      });
+    } else {
+      html = `<div class="ss-section"><div class="ss-section-body">${escHTML(result)}</div></div>`;
+    }
+    const fullId = 'ss' + Date.now();
+    html += `<div style="margin-top:14px; display:flex; gap:8px;">
+      <button class="btn btn-sm" onclick="copyText(document.getElementById('${fullId}').textContent)">Copy Full Draft</button>
+    </div>
+    <div id="${fullId}" style="display:none;">${escHTML(result)}</div>`;
+    document.getElementById('substack-output').innerHTML = html;
+    lastGenerated = { section: 'substack', content: result, title: inp.idea.slice(0,60), platform: 'Substack' };
+    document.getElementById('saveBtn').style.display = '';
+  } catch(e) {
+    document.getElementById('substack-output').innerHTML =
+      `<div class="output-card"><div class="output-text" style="color:var(--red);">Error: ${escHTML(e.message)}</div></div>`;
+  }
+}
+
+// ══════════════════════════════════════
+//  DAILY INSPIRATION
+// ══════════════════════════════════════
+async function generateDailyInspirations() {
+  const ctx = {
+    theme:       document.getElementById('daily-theme').value.trim(),
+    event:       document.getElementById('daily-event').value.trim(),
+    frustration: document.getElementById('daily-frustration').value.trim(),
+    mistake:     document.getElementById('daily-mistake').value.trim(),
+    belief:      document.getElementById('daily-belief').value.trim(),
+    lesson:      document.getElementById('daily-lesson').value.trim(),
+    question:    document.getElementById('daily-question').value.trim(),
+    disagree:    document.getElementById('daily-disagree').value.trim(),
+    learned:     document.getElementById('daily-learned').value.trim(),
+    struggle:    document.getElementById('daily-struggle').value.trim()
+  };
+
+  if (!Object.values(ctx).some(Boolean)) { showToast('Fill in at least one field'); return; }
+  setLoading('daily-output', 'Mining your world for content gold…');
+
+  const SYSTEM = `You are a content strategist for a thoughtful founder.
+Given real-life and business context, generate content ideas that turn personal observations into universal lessons.
+Patterns: business as metaphor for life, philosophy to explain modern problems, challenge shallow success advice, ask reflective questions, confront uncomfortable truths, turn frustration into insight, turn leadership lessons into personal growth.
+Return in clearly labelled sections. Be specific and sharp, never generic.`;
+
+  const contextLines = Object.entries({
+    'Recent theme': ctx.theme, 'Recent event': ctx.event, 'Frustration': ctx.frustration,
+    'Mistake/observation': ctx.mistake, 'Belief': ctx.belief, 'Repeating lesson': ctx.lesson,
+    'Self-question': ctx.question, 'Online disagreement': ctx.disagree,
+    'Lesson from building': ctx.learned, 'Current struggle': ctx.struggle
+  }).filter(([,v]) => v).map(([k,v]) => `${k}: ${v}`).join('\n');
+
+  const USER = `Context:\n${contextLines}\n\nGenerate:\n- 10 DAILY CONTENT IDEAS (numbered)\n- 5 VIDEO HOOKS\n- 5 LINKEDIN ANGLES\n- 5 X POST IDEAS\n- 3 SUBSTACK ESSAY ANGLES\n- 3 PERSONAL STORY PROMPTS\n- 3 PHILOSOPHICAL CONNECTIONS\n- 3 BUSINESS METAPHORS\n\nLabel each section clearly.`;
+
+  try {
+    const result = await callClaude(SYSTEM, USER);
+    document.getElementById('daily-output').innerHTML = outputCard('DAILY INSPIRATIONS', result);
+    lastGenerated = { section: 'daily', content: result, title: 'Daily Inspiration', platform: 'All' };
+    document.getElementById('saveBtn').style.display = '';
+  } catch(e) {
+    document.getElementById('daily-output').innerHTML =
+      `<div class="output-card"><div class="output-text" style="color:var(--red);">Error: ${escHTML(e.message)}</div></div>`;
+  }
+}
+
+// ══════════════════════════════════════
+//  PROMPT GENERATOR
+// ══════════════════════════════════════
+const PROMPTS = {
+  video_script: `You are a ghostwriter for a reflective, experienced founder. Write a 45–60 second video script from this idea.
+Format: HOOK (3–5 sec, bold and scroll-stopping) → STORY (15–20 sec, personal or business example) → INSIGHT (20–25 sec, philosophical or experiential lesson) → CLOSE (10–15 sec, reflective question or challenge).
+Sound like natural speech. No generic motivational language. Voice: warm, grounded, honest, founder-energy.
+Begin with: "Let me challenge how you think for a second…"`,
+  substack: `You are a Substack ghostwriter for a thoughtful founder. Expand this idea into a full essay outline and opening draft.
+Structure: 2–3 title options → subtitle → opening story → main argument → 3–5 key sections → practical reflection → closing paragraph → optional CTA.
+Tone: reflective, grounded, philosophical — like a founder's journal entry. Not a listicle.`,
+  linkedin: `You are a LinkedIn ghostwriter for a grounded, reflective founder. Convert this into a polished LinkedIn post.
+Strong, non-generic opening line. Short paragraphs. Personal or business example. Thoughtful closing question.
+Max 5 hashtags. Sound human, not corporate. No "I'm excited to share" openers.`,
+  x_thread: `Convert this idea into a 5-tweet X thread. Each tweet under 280 characters.
+Strong contrarian opening tweet. Build the idea across tweets. End with a memorable question or insight.
+Label each tweet as TWEET 1, TWEET 2, etc. Sharp. Concise. Worth sharing.`,
+  hooks: `Generate 10 unique video hooks for this idea. Each 1–2 sentences, 3–5 seconds when spoken.
+Stop scrolling, challenge assumptions, or open a loop. No "This changed my life" clichés.
+Vary structure: some questions, some bold statements, some counter-intuitive truths. Number each.`,
+  improve: `You are a script editor for a reflective founder's video content. Improve this script or draft.
+Make it more natural, more grounded, more human. Cut generic content. Sharpen the insight.
+Strengthen the opening and close. Preserve the voice — calm, honest, experienced.`,
+  natural: `Rewrite this to sound like natural spoken language — as if talking directly to someone in a conversation or podcast.
+Remove formal writing patterns. No passive voice. No corporate phrases. Short sentences. Real words. Conversational rhythm.`,
+  philosophical: `Deepen this content by weaving in a relevant philosophical perspective (Stoicism, Aristotle, Seneca, Marcus Aurelius, Nassim Taleb, or modern psychology).
+Don't just name-drop — integrate it so it feels lived. Return the enriched version.`,
+  personal: `Rewrite this content to feel more personal and specific. Deepen the story element.
+Reference a specific moment, decision, person, or business situation. Make it feel like a real memory. Keep the broader lesson but ground it in real human experience.`,
+  founder: `Rewrite from a founder's lens. Add entrepreneurship, product, team, or building context.
+Reference the tension of building — the decisions, pressures, trade-offs. Sound like someone who has built things, hired people, made hard calls, and learned through doing. Not theory. Experience.`,
+  carousel: `Convert this idea into a 7-slide LinkedIn or Instagram carousel.
+Slide 1: Hook/Title. Slides 2–6: one insight per slide (headline + 1–2 sentence explanation). Slide 7: CTA or reflective close.
+Keep slides punchy. Label each slide clearly. Format so text can be dropped into a design tool.`
+};
+
+async function generatePrompt() {
+  const ctx = document.getElementById('prompt-context').value.trim();
+  if (!ctx) { showToast('Paste your idea or draft first'); return; }
+  setLoading('prompt-output', 'Building your output…');
+
+  const prompt = PROMPTS[selectedPromptType] || PROMPTS['video_script'];
+  const SYSTEM = `You generate high-quality content for a founder's workflow. Be specific, grounded, and direct. No filler.`;
+  const USER = `${prompt}\n\nContent to work with:\n---\n${ctx}\n---\n\nReturn the result directly.`;
+
+  try {
+    const result = await callClaude(SYSTEM, USER);
+    document.getElementById('prompt-output').innerHTML = outputCard('GENERATED OUTPUT', result);
+    lastGenerated = { section: 'prompts', content: result, title: selectedPromptType.replace('_',' '), platform: 'All' };
+    document.getElementById('saveBtn').style.display = '';
+  } catch(e) {
+    document.getElementById('prompt-output').innerHTML =
+      `<div class="output-card"><div class="output-text" style="color:var(--red);">Error: ${escHTML(e.message)}</div></div>`;
+  }
+}
+
+// ══════════════════════════════════════
+//  CONTENT CALENDAR
+// ══════════════════════════════════════
+const CAT_COLORS = {
+  Mindset:'#c9a96e', Leadership:'#7ab894', Business:'#9090d0',
+  'Real Estate':'#a09050', 'Personal Growth':'#c9a96e', Philosophy:'#d07090',
+  Productivity:'#70a0c0', Wealth:'#b0a060', Relationships:'#d09070', Career:'#8090a0'
+};
+
+const CATS = ['Mindset','Leadership','Business','Real Estate','Personal Growth','Philosophy','Productivity','Wealth','Relationships','Career'];
+
+const TOPICS = {
+  Mindset: ['The gap between knowing and doing','How identity shapes every decision','Why self-awareness is a competitive advantage','The stories we tell that keep us stuck','Managing your inner critic like a leader'],
+  Leadership: ['What great leaders never say','Building accountability without fear','The cost of avoiding hard conversations','Leading people who are smarter than you','When to push and when to protect your team'],
+  Business: ['The 100% of nothing trap','Revenue is not the same as value creation','When to fire a client','Scaling without losing your culture','The real cost of cheap decisions'],
+  'Real Estate': ['Why most people never build equity','The long game in property','Active vs passive wealth building','What buildings can teach you about business','Risk and leverage in real estate'],
+  'Personal Growth': ['Subtracting before you can add','The reps nobody sees but everyone benefits from','What you practice, you become','Growing through discomfort — not despite it','The gap between your goals and your habits'],
+  Philosophy: ['Premeditatio malorum and your business plan','What Seneca meant by wasting time','The Stoic view on rejection and resilience','Antifragility applied to modern career building','Aristotle on virtue as daily practice'],
+  Productivity: ['Capacity vs activity trap','Deep work as the ultimate advantage','The cost of constant context switching','Building systems instead of relying on discipline','Single-tasking in a world designed to distract'],
+  Wealth: ['Time-leveraged income models','Why continuous learning is your best ROI','The difference between building and spending','Assets that compound vs habits that don\'t','The gap between earning well and keeping wealth'],
+  Relationships: ['The people who dilute your standards','Choosing your inner circle deliberately','When loyalty becomes enabling','Why proximity shapes performance','The quiet cost of low-quality relationships'],
+  Career: ['Building a portfolio, not just a job','Career risks most people ignore completely','What makes you truly irreplaceable','Owning your trajectory instead of waiting','The difference between climbing a ladder and building one']
+};
+
+const HOOKS = {
+  Mindset: 'Let me challenge how you think for a second — most people know what to do. They just don\'t do it.',
+  Leadership: 'The best leaders I\'ve worked with never said these three things.',
+  Business: 'Here\'s what nobody told me when I started building a business.',
+  'Real Estate': 'Real estate taught me more about wealth than any book I\'ve ever read.',
+  'Personal Growth': 'Growth is often about what you decide to stop doing — not what you start.',
+  Philosophy: 'The Stoics solved most of our modern problems. We\'re just not reading.',
+  Productivity: 'You\'re not stuck because you\'re incapable. You\'re stuck because you\'re busy.',
+  Wealth: 'Most people earn well. Very few actually build wealth. The difference is one decision.',
+  Relationships: 'The people around you are either elevating you or eroding you. There\'s no middle ground.',
+  Career: 'A job is something you have. A career is something you build. Most people mistake one for the other.'
+};
+
+const PLATFORMS = ['Video + LinkedIn','LinkedIn + X thread','Video only','X thread + LinkedIn','Substack + LinkedIn'];
+const REPURPOSE  = [
+  'Record the video first. Pull quotes for LinkedIn, strip down for X.',
+  'Write the LinkedIn post first, then compress it into an X thread.',
+  'Start with the Substack outline. Extract the strongest hooks for video.'
+];
+const CTAS = ['Drop your take below','Save this — you\'ll need it later','Share if this hit differently','What\'s your experience with this?','Tell me what I\'m missing here'];
+
+function generateCalendar() {
+  calendarData = [];
+  for (let i = 1; i <= 30; i++) {
+    const cat   = CATS[(i - 1) % CATS.length];
+    const list  = TOPICS[cat];
+    const topic = list[(i - 1) % list.length];
+    calendarData.push({ day: i, cat, topic, hook: HOOKS[cat] });
+  }
+  renderCalendar();
+}
+
+function renderCalendar() {
+  const wrap = document.getElementById('cal-grid-wrap');
+  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  let html = '<div class="cal-grid">';
+  days.forEach(d => { html += `<div class="cal-day-header">${d}</div>`; });
+  // Month starts on Wednesday (offset 2)
+  for (let i = 0; i < 2; i++) html += `<div style="background:transparent;border:none;min-height:0;"></div>`;
+  calendarData.forEach((d, idx) => {
+    const color = CAT_COLORS[d.cat] || '#c9a96e';
+    const short = d.topic.length > 28 ? d.topic.slice(0,28) + '…' : d.topic;
+    html += `<div class="cal-day has-content" onclick="showCalDay(${idx})">
+      <div class="cal-day-num">${d.day}</div>
+      <span class="cal-cat-dot" style="background:${color};"></span>
+      <div class="cal-day-topic">${escHTML(short)}</div>
+    </div>`;
+  });
+  html += '</div>';
+  wrap.innerHTML = html;
+}
+
+let _pendingCalIdx = null;
+
+function showCalDay(idx) {
+  const d = calendarData[idx];
+  if (!d) return;
+  _pendingCalIdx = idx;
+  const plat    = PLATFORMS[idx % PLATFORMS.length];
+  const repurp  = REPURPOSE[idx % REPURPOSE.length];
+  const cta     = CTAS[idx % CTAS.length];
+  document.getElementById('cal-modal-title').textContent = `Day ${d.day} — ${d.cat}`;
+  document.getElementById('cal-modal-body').innerHTML = `
+    <div class="cal-detail-label">Topic</div>
+    <div class="cal-detail-value">${escHTML(d.topic)}</div>
+    <div class="cal-detail-label">Video Hook</div>
+    <div class="cal-detail-value">${escHTML(d.hook)}</div>
+    <div class="cal-detail-label">Main Message</div>
+    <div class="cal-detail-value">Take your personal experience with "${escHTML(d.topic.toLowerCase())}" and turn it into a universal insight your audience can apply today.</div>
+    <div class="cal-detail-label">Best Platform</div>
+    <div class="cal-detail-value">${escHTML(plat)}</div>
+    <div class="cal-detail-label">Repurpose As</div>
+    <div class="cal-detail-value">${escHTML(repurp)}</div>
+    <div class="cal-detail-label">CTA</div>
+    <div class="cal-detail-value">${escHTML(cta)}</div>
+    <div style="margin-top:18px; display:flex; gap:8px;">
+      <button class="btn btn-sm btn-accent" onclick="useCalendarTopic()">Use This Topic →</button>
+      <button class="btn btn-sm btn-ghost" onclick="document.getElementById('cal-modal').style.display='none'">Close</button>
+    </div>`;
+  document.getElementById('cal-modal').style.display = 'flex';
+}
+
+function useCalendarTopic() {
+  const d = calendarData[_pendingCalIdx];
+  if (!d) return;
+  document.getElementById('inp-idea').value     = d.topic;
+  document.getElementById('inp-category').value = d.cat;
+  document.getElementById('cal-modal').style.display = 'none';
+  navigate('input');
+  showToast('Topic loaded — add your story and click Generate');
+}
+
+// ══════════════════════════════════════
+//  CONTENT BANK
+// ══════════════════════════════════════
+let bankFilters = { platform: '', status: '' };
+
+function saveCurrentToBank() {
+  if (!lastGenerated.content) { showToast('Nothing to save yet'); return; }
+  const item = {
+    id:       Date.now(),
+    title:    lastGenerated.title || 'Untitled',
+    platform: lastGenerated.platform || 'All',
+    category: document.getElementById('inp-category') ? document.getElementById('inp-category').value : 'General',
+    date:     new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }),
+    content:  lastGenerated.content,
+    status:   'Draft'
+  };
+  contentBank.unshift(item);
+  showToast('Saved to Content Bank');
+  document.getElementById('saveBtn').style.display = 'none';
+}
+
+function filterBank(key, val) { bankFilters[key] = val; renderBank(); }
+
+function renderBank() {
+  const out = document.getElementById('bank-output');
+  let items = contentBank.filter(item => {
+    if (bankFilters.platform && item.platform !== bankFilters.platform) return false;
+    if (bankFilters.status   && item.status   !== bankFilters.status)   return false;
+    return true;
+  });
+
+  if (items.length === 0) {
+    out.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">🗂</div>
+      <div class="empty-text">${contentBank.length === 0 ? 'Your content bank is empty' : 'No items match these filters'}</div>
+      <div class="empty-sub">${contentBank.length === 0 ? 'Generate content and click "Save to Bank". Export/import JSON to persist across sessions.' : 'Try adjusting the filters above.'}</div>
+    </div>`;
+    return;
+  }
+
+  const statusClass = { 'Idea':'s-idea', 'Draft':'s-draft', 'Ready to Record':'s-ready', 'Published':'s-published' };
+
+  out.innerHTML = items.map(item => `
+    <div class="bank-item" id="bi-${item.id}">
+      <div class="bank-item-top">
+        <div class="bank-item-title">${escHTML(item.title)}</div>
+        <div class="output-actions">
+          <button class="btn btn-sm btn-ghost" onclick="copyText(${JSON.stringify(item.content)})">Copy</button>
+          <button class="btn btn-sm btn-ghost" style="color:var(--red);" onclick="deleteFromBank(${item.id})">Delete</button>
+        </div>
+      </div>
+      <div class="bank-meta">
+        <span class="badge badge-platform">${escHTML(item.platform)}</span>
+        <span class="badge badge-neutral">${escHTML(item.category)}</span>
+        <span class="badge badge-neutral">${escHTML(item.date)}</span>
+        <span class="badge ${statusClass[item.status] || 's-draft'}">${escHTML(item.status)}</span>
+      </div>
+      <div class="bank-preview">${escHTML(item.content)}</div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <label style="font-size:11px; color:var(--text3);">Status:</label>
+        <select style="padding:4px 8px; font-size:11px; width:auto; height:auto; border-radius:6px;" onchange="updateStatus(${item.id}, this.value)">
+          ${['Idea','Draft','Ready to Record','Published'].map(s => `<option ${s===item.status?'selected':''}>${s}</option>`).join('')}
+        </select>
+      </div>
+    </div>`).join('');
+}
+
+function deleteFromBank(id) {
+  contentBank = contentBank.filter(i => i.id !== id);
+  renderBank();
+  showToast('Item deleted');
+}
+
+function updateStatus(id, status) {
+  const item = contentBank.find(i => i.id === id);
+  if (item) item.status = status;
+}
+
+// ── EXPORT / IMPORT ──
+function exportBank() {
+  if (contentBank.length === 0) { showToast('Nothing to export yet'); return; }
+  const blob = new Blob([JSON.stringify(contentBank, null, 2)], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url;
+  a.download = `adeniyi-content-bank-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Content bank exported');
+}
+
+function importBank(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (Array.isArray(data)) {
+        contentBank = [...data, ...contentBank];
+        showToast(`Imported ${data.length} item${data.length !== 1 ? 's' : ''}`);
+        if (currentSection === 'bank') renderBank();
+      } else { showToast('Invalid format — expected an array'); }
+    } catch { showToast('Could not parse JSON file'); }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+// ══════════════════════════════════════
+//  PARSING HELPERS
+// ══════════════════════════════════════
+function parseLabelled(text, labels) {
+  const result = [];
+  for (let i = 0; i < labels.length; i++) {
+    const label = labels[i];
+    const next  = labels[i + 1];
+    const re    = new RegExp(label.replace(/[|]/g,'\\|') + '[:\\s\\-]*(.*?)(?=' + (next ? next.replace(/[|]/g,'\\|') : '$') + ')', 'is');
+    const m     = text.match(re);
+    if (m && m[1].trim()) result.push([label, m[1].trim()]);
+  }
+  return result;
+}
+
+// ══════════════════════════════════════
+//  MAIN GENERATE ROUTER
+// ══════════════════════════════════════
+function handleGenerate() {
+  switch (currentSection) {
+    case 'input':    navigate('video'); generateVideoScript(); break;
+    case 'video':    generateVideoScript();         break;
+    case 'linkedin': generateLinkedIn();            break;
+    case 'twitter':  generateTwitter();             break;
+    case 'substack': generateSubstack();            break;
+    case 'daily':    generateDailyInspirations();   break;
+    case 'prompts':  generatePrompt();              break;
+    default: showToast('Navigate to a content section first');
+  }
+}
+</script>
+</body>
+</html>
