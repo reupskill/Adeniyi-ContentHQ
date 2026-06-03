@@ -1,5 +1,5 @@
 "use client"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Topbar } from "@/components/layout/Topbar"
 import { Button, Field, Input, Select, Card } from "@/components/ui"
 import { useAppStore } from "@/store/useAppStore"
@@ -16,6 +16,7 @@ export default function SettingsPage() {
   const [cta, setCta] = useState("Reflection question")
   const [confirmClear, setConfirmClear] = useState(false)
   const { showToast } = useAppStore()
+  const importRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     fetch("/api/settings")
@@ -37,9 +38,35 @@ export default function SettingsPage() {
     showToast("Preferences saved", "ok")
   }
 
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    try {
+      const text = await file.text()
+      const data = JSON.parse(text)
+      const items = Array.isArray(data) ? data : []
+      const res = await fetch("/api/content/import", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(items),
+      })
+      const result = await res.json()
+      if (res.ok) showToast(`Imported ${result.imported} items`, "ok")
+      else showToast(result.error || "Import failed", "error")
+    } catch {
+      showToast("Invalid JSON file", "error")
+    }
+    e.target.value = ""
+  }
+
   const clearAll = async () => {
+    try {
+      await fetch("/api/content", { method: "DELETE" })
+      showToast("All data cleared", "ok")
+    } catch {
+      showToast("Failed to clear data", "error")
+    }
     setConfirmClear(false)
-    showToast("All data cleared")
   }
 
   return (
@@ -84,7 +111,8 @@ export default function SettingsPage() {
           <p className="text-[13px] mb-4" style={{ color: "var(--text-3)" }}>Back up your library or restore it from a JSON file.</p>
           <div className="flex gap-2.5">
             <Button variant="secondary" onClick={() => { window.location.href = "/api/content/export" }}>Export JSON</Button>
-            <Button variant="secondary">Import JSON</Button>
+            <Button variant="secondary" onClick={() => importRef.current?.click()}>Import JSON</Button>
+            <input ref={importRef} type="file" accept=".json" className="hidden" onChange={handleImport} />
           </div>
         </Card>
 

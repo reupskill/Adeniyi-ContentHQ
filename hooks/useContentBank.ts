@@ -8,19 +8,18 @@ interface Filters {
   search?: string
 }
 
-export function useContentBank(initialFilters: Filters = {}) {
+export function useContentBank({ platform, status, search }: Filters = {}) {
   const [items, setItems] = useState<ContentItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [total, setTotal] = useState(0)
-  const [filters, setFilters] = useState(initialFilters)
 
   const fetchItems = useCallback(async () => {
     setIsLoading(true)
     try {
       const params = new URLSearchParams()
-      if (filters.platform && filters.platform !== "All") params.set("platform", filters.platform)
-      if (filters.status && filters.status !== "All") params.set("status", filters.status)
-      if (filters.search) params.set("search", filters.search)
+      if (platform && platform !== "All") params.set("platform", platform)
+      if (status && status !== "All") params.set("status", status)
+      if (search) params.set("search", search)
       params.set("limit", "50")
 
       const res = await fetch(`/api/content?${params}`)
@@ -33,18 +32,18 @@ export function useContentBank(initialFilters: Filters = {}) {
     } finally {
       setIsLoading(false)
     }
-  }, [filters])
+  }, [platform, status, search])
 
   useEffect(() => { fetchItems() }, [fetchItems])
 
-  const updateStatus = useCallback(async (id: string, status: ContentStatus) => {
+  const updateStatus = useCallback(async (id: string, newStatus: ContentStatus) => {
     const res = await fetch(`/api/content/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
+      body: JSON.stringify({ status: newStatus }),
     })
     if (!res.ok) throw new Error("Failed to update")
-    setItems((cur) => cur.map((it) => (it.id === id ? { ...it, status } : it)))
+    setItems((cur) => cur.map((it) => (it.id === id ? { ...it, status: newStatus } : it)))
   }, [])
 
   const deleteItem = useCallback(async (id: string) => {
@@ -54,14 +53,5 @@ export function useContentBank(initialFilters: Filters = {}) {
     setTotal((t) => t - 1)
   }, [])
 
-  return {
-    items,
-    total,
-    isLoading,
-    filters,
-    setFilters,
-    updateStatus,
-    deleteItem,
-    refresh: fetchItems,
-  }
+  return { items, total, isLoading, updateStatus, deleteItem, refresh: fetchItems }
 }

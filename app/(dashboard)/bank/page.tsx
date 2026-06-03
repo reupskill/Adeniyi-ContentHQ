@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { Topbar } from "@/components/layout/Topbar"
 import { Button, StatusBadge, PlatformBadge, Card } from "@/components/ui"
 import { useContentBank } from "@/hooks/useContentBank"
@@ -42,7 +42,8 @@ export default function BankPage() {
   const [preview, setPreview] = useState<ContentItem | null>(null)
   const { showToast } = useAppStore()
 
-  const { items, total, isLoading, updateStatus, deleteItem } = useContentBank({
+  const importRef = useRef<HTMLInputElement>(null)
+  const { items, total, isLoading, updateStatus, deleteItem, refresh } = useContentBank({
     platform: platFilter as any,
     status: statFilter as any,
     search,
@@ -52,6 +53,27 @@ export default function BankPage() {
     try { await updateStatus(id, status); showToast(`Status updated to ${status}`, "ok") }
     catch { showToast("Failed to update status", "error") }
     setOpenMenu(null)
+  }
+
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    try {
+      const text = await file.text()
+      const data = JSON.parse(text)
+      const items = Array.isArray(data) ? data : []
+      const res = await fetch("/api/content/import", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(items),
+      })
+      const result = await res.json()
+      if (res.ok) { showToast(`Imported ${result.imported} items`, "ok"); refresh() }
+      else showToast(result.error || "Import failed", "error")
+    } catch {
+      showToast("Invalid JSON file", "error")
+    }
+    e.target.value = ""
   }
 
   const handleDelete = async (id: string) => {
@@ -68,7 +90,8 @@ export default function BankPage() {
           <div className="flex gap-2">
             <Button size="sm" variant="secondary"
               onClick={() => { window.location.href = "/api/content/export" }}>Export JSON</Button>
-            <Button size="sm" variant="secondary">Import JSON</Button>
+            <Button size="sm" variant="secondary" onClick={() => importRef.current?.click()}>Import JSON</Button>
+            <input ref={importRef} type="file" accept=".json" className="hidden" onChange={handleImport} />
           </div>
         </div>
 

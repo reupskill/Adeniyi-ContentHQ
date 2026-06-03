@@ -39,6 +39,23 @@ export async function GET(req: Request) {
   }
 }
 
+export async function DELETE() {
+  try {
+    const { error } = await requireAuth()
+    if (error) return error
+    const db = createServerClient()
+    const { error: dbError } = await db
+      .from("content_items")
+      .update({ deleted_at: new Date().toISOString() })
+      .is("deleted_at", null)
+    if (dbError) throw dbError
+    return NextResponse.json({ success: true })
+  } catch (e) {
+    console.error("[content DELETE]", e)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const { error } = await requireAuth()
