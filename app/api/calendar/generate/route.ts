@@ -54,6 +54,17 @@ function mapDay(row: Record<string, unknown>) {
   }
 }
 
+function seededShuffle<T>(arr: T[], seed: number): T[] {
+  const result = [...arr]
+  let s = seed
+  for (let i = result.length - 1; i > 0; i--) {
+    s = (s * 1664525 + 1013904223) & 0xffffffff
+    const j = Math.abs(s) % (i + 1);
+    [result[i], result[j]] = [result[j], result[i]]
+  }
+  return result
+}
+
 export async function POST(req: Request) {
   try {
     const { error } = await requireAuth()
@@ -64,9 +75,13 @@ export async function POST(req: Request) {
     const [year, monthNum] = targetMonth.split("-").map(Number)
     const daysInMonth = new Date(year, monthNum, 0).getDate()
 
+    // Seed shuffle by year+month so each month has a unique but reproducible order
+    const seed = year * 100 + monthNum
+    const shuffled = seededShuffle(TOPIC_LIBRARY, seed)
+
     const rows = []
     for (let day = 1; day <= 30 && day <= daysInMonth; day++) {
-      const topic = TOPIC_LIBRARY[(day - 1) % TOPIC_LIBRARY.length]
+      const topic = shuffled[(day - 1) % shuffled.length]
       const dateStr = `${targetMonth}-${String(day).padStart(2, "0")}`
       rows.push({
         calendar_date: dateStr,
@@ -82,13 +97,50 @@ export async function POST(req: Request) {
     }
 
     const db = createServerClient()
-    const { data, error: dbError } = await db
+
+    // Upsert calendar rows
+    const { data: calData, error: dbError } = await db
       .from("content_calendar")
       .upsert(rows, { onConflict: "calendar_date" })
       .select()
 
     if (dbError) throw dbError
-    return NextResponse.json((data || []).map(mapDay))
+
+    // Auto-save ideas that don't yet have a linked content item
+    const calRows = calData || []
+    const unlinked = calRows.filter((r) => !r.content_item_id)
+    if (unlinked.length > 0) {
+      const contentItems = unlinked.map((r) => ({
+        title: r.topic,
+        platform: r.best_platform,
+        category: r.category,
+        status: "Idea",
+        content: [r.hook, r.main_message, r.repurpose_recommendation, r.cta].filter(Boolean).join("\n\n"),
+        raw_inputs: { calendar_date: r.calendar_date, hook: r.hook, main_message: r.main_message, cta: r.cta },
+      }))
+
+      const { data: savedItems, error: itemsError } = await db
+        .from("content_items")
+        .insert(contentItems)
+        .select("id, title")
+
+      if (!itemsError && savedItems) {
+        // Link each calendar row to its new content item
+        await Promise.all(
+          unlinked.map((r, i) =>
+            db.from("content_calendar")
+              .update({ content_item_id: savedItems[i]?.id })
+              .eq("id", r.id)
+          )
+        )
+        // Patch the returned data so content_item_id is populated
+        savedItems.forEach((item, i) => {
+          if (unlinked[i]) unlinked[i].content_item_id = item.id
+        })
+      }
+    }
+
+    return NextResponse.json(calRows.map(mapDay))
   } catch (e) {
     console.error("[calendar/generate]", e)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })

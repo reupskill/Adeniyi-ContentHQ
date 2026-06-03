@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Topbar } from "@/components/layout/Topbar"
 import { InputPanel, DEFAULT_INPUTS, GeneratorInputs } from "@/components/generators/InputPanel"
 import { Button, OutputCard, GenLoading, GenEmpty, Card } from "@/components/ui"
@@ -42,6 +42,13 @@ const SECTION_LABELS: Record<string, string> = {
 
 export default function VideoPage() {
   const [inputs, setInputs] = useState<GeneratorInputs>(DEFAULT_INPUTS)
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const idea = params.get("idea")
+    const hook = params.get("hook")
+    if (idea) setInputs((prev) => ({ ...prev, idea, story: hook || prev.story }))
+  }, [])
   const [platforms, setPlatforms] = useState({ video: true, linkedin: false, x: false, substack: false })
   const [result, setResult] = useState<ScriptOutput | null>(null)
   const { showToast } = useAppStore()

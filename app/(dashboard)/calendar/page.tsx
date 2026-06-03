@@ -167,7 +167,11 @@ export default function CalendarPage() {
                 {selected.repurposeRecommendation && <SlideField label="Repurpose Recommendation" body={selected.repurposeRecommendation} />}
                 {selected.cta && <SlideField label="Call to Action" body={selected.cta} />}
                 <Button variant="primary" block className="mt-2"
-                  onClick={() => { showToast("Topic loaded into generator", "ok"); setSelected(null); router.push("/video") }}>
+                  onClick={() => {
+                    showToast("Topic loaded into generator", "ok")
+                    setSelected(null)
+                    router.push(`/video?idea=${encodeURIComponent(selected.topic)}&hook=${encodeURIComponent(selected.hook || "")}`)
+                  }}>
                   Use This Topic
                 </Button>
               </div>
