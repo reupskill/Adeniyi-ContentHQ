@@ -1,3 +1,5 @@
+export const maxDuration = 60
+
 import { NextResponse } from "next/server"
 import { requireAuth } from "@/lib/requireAuth"
 import { generateContent } from "@/lib/claude"

@@ -1,10 +1,1 @@
-{
-  "functions": {
-    "app/api/generate/substack/route.ts": { "maxDuration": 60 },
-    "app/api/generate/daily-inspiration/route.ts": { "maxDuration": 60 },
-    "app/api/generate/video-script/route.ts": { "maxDuration": 30 },
-    "app/api/generate/linkedin/route.ts": { "maxDuration": 30 },
-    "app/api/generate/twitter/route.ts": { "maxDuration": 30 },
-    "app/api/generate/analyse-script/route.ts": { "maxDuration": 30 }
-  }
-}
+{}
