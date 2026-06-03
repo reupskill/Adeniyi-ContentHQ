@@ -1,0 +1,84 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #0b0b0f;
+  --surface: #141420;
+  --surface-2: #181826;
+  --surface-3: #1f1f2e;
+  --line: rgba(255,255,255,0.07);
+  --line-2: rgba(255,255,255,0.10);
+  --gold: #c9a96e;
+  --gold-2: #d9bd86;
+  --gold-dim: rgba(201,169,110,0.14);
+  --gold-line: rgba(201,169,110,0.35);
+  --cream: #e8d5b0;
+  --text: #ece7df;
+  --text-2: #a39e95;
+  --text-3: #6f6b64;
+  --text-faint: #4d4a45;
+  --video: #8b6cdb;
+  --video-bg: rgba(124,92,191,0.16);
+  --linkedin: #2d8fe0;
+  --linkedin-bg: rgba(45,143,224,0.15);
+  --x: #e7e7e7;
+  --x-bg: rgba(231,231,231,0.10);
+  --substack: #e8772a;
+  --substack-bg: rgba(224,108,26,0.15);
+  --youtube: #e0504a;
+  --youtube-bg: rgba(208,64,64,0.15);
+  --ready: #58c98d;
+  --ready-bg: rgba(76,175,128,0.15);
+  --generating: #e6ad4e;
+  --generating-bg: rgba(224,160,64,0.15);
+  --draft: #7c97b4;
+  --draft-bg: rgba(96,128,160,0.15);
+  --published: #46c4ac;
+  --published-bg: rgba(60,184,160,0.15);
+  --danger: #c47272;
+  --danger-bg: rgba(176,96,96,0.14);
+  --sidebar-w: 244px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection { background: var(--gold-dim); color: var(--cream); }
+
+::-webkit-scrollbar { width: 11px; height: 11px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #26263a; border-radius: 20px; border: 3px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-thumb:hover { background: #34344e; background-clip: padding-box; border: 3px solid transparent; }
+
+.font-serif { font-family: 'DM Serif Display', Georgia, serif; }
+.font-mono { font-family: 'JetBrains Mono', monospace; }
+
+@keyframes toastIn { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: none; } }
+@keyframes toastOut { to { opacity: 0; transform: translateX(30px); } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideIn { from { transform: translateX(100%); } to { transform: none; } }
+@keyframes screenIn { from { transform: translateY(9px); } to { transform: none; } }
+@keyframes fadeUp { from { transform: translateY(10px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes pulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.08); opacity: .85; } }
+
+.animate-screen-in { animation: screenIn .4s cubic-bezier(.22,.61,.36,1); }
+.animate-fade-in { animation: fadeIn .2s; }
+.animate-slide-in { animation: slideIn .35s cubic-bezier(.22,.61,.36,1); }
+.animate-spin { animation: spin .7s linear infinite; }
+.animate-pulse-glow { animation: pulse 1.4s ease-in-out infinite; }
+
+.fade-seq > * { animation: fadeUp .5s backwards; }
