@@ -216,8 +216,9 @@ function NewsletterSlider({
   const [streaming, setStreaming] = useState(true)
   const [nlText, setNlText] = useState("")
   const [linkedinPost, setLinkedinPost] = useState("")
+  const [povPost, setPovPost] = useState("")
   const [savedId, setSavedId] = useState<string | null>(null)
-  const [tab, setTab] = useState<"newsletter" | "linkedin">("newsletter")
+  const [tab, setTab] = useState<"newsletter" | "linkedin" | "pov">("newsletter")
   const abortRef = useRef<AbortController | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
 
@@ -262,6 +263,7 @@ function NewsletterSlider({
             if (p.text) { full += p.text; setNlText(full) }
             if (p.done) {
               setLinkedinPost(p.linkedinPost || "")
+              setPovPost(p.povPost || "")
               setSavedId(p.id || null)
               showToast("Newsletter saved to Content Bank", "ok")
             }
@@ -336,6 +338,16 @@ function NewsletterSlider({
                       fontFamily: "inherit",
                     }}>LinkedIn Post</button>
                 )}
+                {povPost && (
+                  <button onClick={() => setTab("pov")}
+                    className="text-[12px] font-semibold px-3 py-1 rounded-md cursor-pointer border transition-all"
+                    style={{
+                      background: tab === "pov" ? "#25D36622" : "transparent",
+                      borderColor: tab === "pov" ? "#25D366" : "var(--line)",
+                      color: tab === "pov" ? "#25D366" : "var(--text-3)",
+                      fontFamily: "inherit",
+                    }}>WhatsApp / POV</button>
+                )}
               </div>
               {savedId && (
                 <span className="text-[11.5px] font-medium" style={{ color: "var(--published)" }}>✓ Saved to Bank</span>
@@ -343,9 +355,9 @@ function NewsletterSlider({
             </div>
             <Button size="sm" variant="secondary"
               onClick={() => {
-                const text = tab === "linkedin" ? linkedinPost : nlText
-                navigator.clipboard.writeText(text).then(() =>
-                  showToast(tab === "linkedin" ? "LinkedIn post copied!" : "Newsletter copied!", "ok"))
+                const text = tab === "linkedin" ? linkedinPost : tab === "pov" ? povPost : nlText
+                const label = tab === "linkedin" ? "LinkedIn post copied!" : tab === "pov" ? "POV copied!" : "Newsletter copied!"
+                navigator.clipboard.writeText(text).then(() => showToast(label, "ok"))
               }}>
               Copy
             </Button>
@@ -390,6 +402,28 @@ function NewsletterSlider({
               </div>
               <div className="whitespace-pre-wrap text-[14px] leading-[1.7]" style={{ color: "var(--text-2)" }}>
                 {linkedinPost}
+              </div>
+            </div>
+          )}
+
+          {tab === "pov" && done && povPost && (
+            <div className="pb-8">
+              <div className="flex items-center gap-2 mb-5">
+                <div className="w-7 h-7 rounded-lg grid place-items-center flex-shrink-0"
+                  style={{ background: "#25D36622", border: "1px solid #25D36644" }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="#25D366">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                    <path d="M11.998 2C6.477 2 2 6.477 2 11.998c0 1.746.45 3.385 1.236 4.812L2 22l5.338-1.396A9.931 9.931 0 0 0 11.998 22c5.522 0 9.998-4.478 9.998-9.998 0-5.522-4.476-10-9.998-10z" fillOpacity=".3"/>
+                  </svg>
+                </div>
+                <div>
+                  <div className="text-[12px] font-semibold" style={{ color: "#25D366" }}>WhatsApp &amp; LinkedIn Reshare</div>
+                  <div className="text-[11px]" style={{ color: "var(--text-3)" }}>Copy and paste directly — works on both platforms</div>
+                </div>
+              </div>
+              <div className="p-5 rounded-xl whitespace-pre-wrap text-[15px] leading-[1.75]"
+                style={{ background: "var(--surface-2)", border: "1px solid var(--line-2)", color: "var(--text)", fontFamily: "inherit" }}>
+                {povPost}
               </div>
             </div>
           )}
