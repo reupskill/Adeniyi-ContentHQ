@@ -41,7 +41,50 @@
   --danger: #c47272;
   --danger-bg: rgba(176,96,96,0.14);
   --sidebar-w: 244px;
+  --sidebar-bg: linear-gradient(180deg, #100f17 0%, #0c0b12 100%);
+  --bg-gradient: radial-gradient(1200px 600px at 78% -8%, #15131c 0%, #0b0b0f 55%);
 }
+
+[data-theme="light"] {
+  --bg: #f5f3ee;
+  --surface: #ffffff;
+  --surface-2: #f0ece6;
+  --surface-3: #e8e3db;
+  --line: rgba(0,0,0,0.07);
+  --line-2: rgba(0,0,0,0.11);
+  --gold: #9a6f26;
+  --gold-2: #b5872e;
+  --gold-dim: rgba(154,111,38,0.09);
+  --gold-line: rgba(154,111,38,0.28);
+  --cream: #4a3516;
+  --text: #1c1814;
+  --text-2: #57504a;
+  --text-3: #8a8078;
+  --text-faint: #b0a89e;
+  --video: #6c4ec4;
+  --video-bg: rgba(108,78,196,0.10);
+  --linkedin: #0a72c3;
+  --linkedin-bg: rgba(10,114,195,0.10);
+  --x: #222222;
+  --x-bg: rgba(34,34,34,0.08);
+  --substack: #c9601a;
+  --substack-bg: rgba(201,96,26,0.10);
+  --ready: #2ea86e;
+  --ready-bg: rgba(46,168,110,0.10);
+  --generating: #c48a1a;
+  --generating-bg: rgba(196,138,26,0.10);
+  --draft: #5678a0;
+  --draft-bg: rgba(86,120,160,0.10);
+  --published: #1e9e8c;
+  --published-bg: rgba(30,158,140,0.10);
+  --danger: #a84040;
+  --danger-bg: rgba(168,64,64,0.09);
+  --sidebar-bg: linear-gradient(180deg, #faf8f4 0%, #f2ede7 100%);
+  --bg-gradient: none;
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb { background: #d0c8be; border: 3px solid transparent; background-clip: padding-box; border-radius: 20px; }
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: #c0b8ae; border: 3px solid transparent; background-clip: padding-box; }
 
 * { box-sizing: border-box; }
 
