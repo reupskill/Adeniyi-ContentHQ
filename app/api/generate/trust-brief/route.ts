@@ -29,7 +29,9 @@ Adeniyi creates content at the intersection of: Product Management, Growth, Lead
 
 For each of the 5 stories:
 **Story [N]: [Headline]**
-- Source & Date: [Source] · [approximate date or timeframe]
+- Publication: [Publication name e.g. Bloomberg, TechCrunch, Reuters, FT, Rest of World, Semafor, etc.]
+- Date: [Month Year]
+- Search: [3-6 word search query that would find this exact story on Google]
 - Region: [region/market]
 - Why it matters: [1-2 sentences]
 - Business/product implication: [1-2 sentences]

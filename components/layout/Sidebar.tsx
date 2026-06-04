@@ -40,20 +40,23 @@ function NavIcon({ name }: { name: string }) {
 }
 
 function ThemeToggle() {
-  const [dark, setDark] = useState(true)
+  const [dark, setDark] = useState<boolean | null>(null)
 
   useEffect(() => {
-    const saved = localStorage.getItem("theme")
-    const isDark = saved ? saved === "dark" : (document.documentElement.getAttribute("data-theme") !== "light")
-    setDark(isDark)
+    setDark(document.documentElement.getAttribute("data-theme") !== "light")
   }, [])
 
   const toggle = () => {
-    const next = !dark
-    setDark(next)
-    document.documentElement.setAttribute("data-theme", next ? "dark" : "light")
-    localStorage.setItem("theme", next ? "dark" : "light")
+    setDark((prev) => {
+      const next = !prev
+      document.documentElement.setAttribute("data-theme", next ? "dark" : "light")
+      localStorage.setItem("theme", next ? "dark" : "light")
+      return next
+    })
   }
+
+  // Don't render until we know the real theme — prevents icon flicker on load
+  if (dark === null) return <div style={{ width: 28, height: 28 }} />
 
   return (
     <button

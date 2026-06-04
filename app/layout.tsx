@@ -8,12 +8,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      {/* Prevent flash by applying saved theme before first paint */}
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: `try{document.documentElement.setAttribute('data-theme',localStorage.getItem('theme')||'dark')}catch(e){}` }} />
-      </head>
+    <html lang="en" suppressHydrationWarning>
       <body style={{ background: "var(--bg)", minHeight: "100vh" }}>
+        {/* Runs synchronously before React hydrates — sets theme from localStorage before first paint */}
+        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var t=localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t)}catch(e){}}())` }} />
         {children}
       </body>
     </html>
