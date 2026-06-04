@@ -215,10 +215,9 @@ function NewsletterSlider({
   const { showToast } = useAppStore()
   const [streaming, setStreaming] = useState(true)
   const [nlText, setNlText] = useState("")
-  const [linkedinPost, setLinkedinPost] = useState("")
-  const [povPost, setPovPost] = useState("")
+  const [resharePost, setResharePost] = useState("")
   const [savedId, setSavedId] = useState<string | null>(null)
-  const [tab, setTab] = useState<"newsletter" | "linkedin" | "pov">("newsletter")
+  const [tab, setTab] = useState<"newsletter" | "reshare">("newsletter")
   const abortRef = useRef<AbortController | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
 
@@ -262,8 +261,7 @@ function NewsletterSlider({
             const p = JSON.parse(raw)
             if (p.text) { full += p.text; setNlText(full) }
             if (p.done) {
-              setLinkedinPost(p.linkedinPost || "")
-              setPovPost(p.povPost || "")
+              setResharePost(p.resharePost || "")
               setSavedId(p.id || null)
               showToast("Newsletter saved to Content Bank", "ok")
             }
@@ -291,7 +289,7 @@ function NewsletterSlider({
           style={{ borderBottom: "1px solid var(--line)" }}>
           <div className="flex-1 min-w-0 pr-4">
             <div className="text-[11px] font-semibold tracking-[0.12em] uppercase mb-1.5"
-              style={{ color: "var(--gold)" }}>Trust Economy Brief · Newsletter</div>
+              style={{ color: "var(--gold)" }}>Trust Economy Brief · LinkedIn + Substack</div>
             <p className="text-[14px] font-semibold leading-snug" style={{ color: "var(--text)" }}>
               {headline}
             </p>
@@ -328,25 +326,15 @@ function NewsletterSlider({
                     color: tab === "newsletter" ? "var(--gold)" : "var(--text-3)",
                     fontFamily: "inherit",
                   }}>Newsletter</button>
-                {linkedinPost && (
-                  <button onClick={() => setTab("linkedin")}
+                {resharePost && (
+                  <button onClick={() => setTab("reshare")}
                     className="text-[12px] font-semibold px-3 py-1 rounded-md cursor-pointer border transition-all"
                     style={{
-                      background: tab === "linkedin" ? "#0A66C222" : "transparent",
-                      borderColor: tab === "linkedin" ? "#0A66C2" : "var(--line)",
-                      color: tab === "linkedin" ? "var(--linkedin)" : "var(--text-3)",
+                      background: tab === "reshare" ? "var(--surface-3, var(--surface-2))" : "transparent",
+                      borderColor: tab === "reshare" ? "var(--text-3)" : "var(--line)",
+                      color: tab === "reshare" ? "var(--text)" : "var(--text-3)",
                       fontFamily: "inherit",
-                    }}>LinkedIn Post</button>
-                )}
-                {povPost && (
-                  <button onClick={() => setTab("pov")}
-                    className="text-[12px] font-semibold px-3 py-1 rounded-md cursor-pointer border transition-all"
-                    style={{
-                      background: tab === "pov" ? "#25D36622" : "transparent",
-                      borderColor: tab === "pov" ? "#25D366" : "var(--line)",
-                      color: tab === "pov" ? "#25D366" : "var(--text-3)",
-                      fontFamily: "inherit",
-                    }}>WhatsApp / POV</button>
+                    }}>Reshare</button>
                 )}
               </div>
               {savedId && (
@@ -355,8 +343,8 @@ function NewsletterSlider({
             </div>
             <Button size="sm" variant="secondary"
               onClick={() => {
-                const text = tab === "linkedin" ? linkedinPost : tab === "pov" ? povPost : nlText
-                const label = tab === "linkedin" ? "LinkedIn post copied!" : tab === "pov" ? "POV copied!" : "Newsletter copied!"
+                const text = tab === "reshare" ? resharePost : nlText
+                const label = tab === "reshare" ? "Reshare post copied!" : "Newsletter copied!"
                 navigator.clipboard.writeText(text).then(() => showToast(label, "ok"))
               }}>
               Copy
@@ -389,41 +377,15 @@ function NewsletterSlider({
             </div>
           )}
 
-          {tab === "linkedin" && done && linkedinPost && (
+          {tab === "reshare" && done && resharePost && (
             <div className="pb-8">
-              <div className="flex items-center gap-3 mb-5 p-4 rounded-xl"
-                style={{ background: "var(--surface-2)", border: "1px solid var(--line-2)" }}>
-                <div className="w-11 h-11 rounded-full grid place-items-center font-semibold text-[17px] flex-shrink-0"
-                  style={{ background: "linear-gradient(135deg, #2e2740, #1a1626)", color: "var(--gold)", border: "1px solid var(--line-2)" }}>A</div>
-                <div>
-                  <div className="text-[13.5px] font-semibold" style={{ color: "var(--text)" }}>Adeniyi</div>
-                  <div className="text-[12px]" style={{ color: "var(--text-3)" }}>Founder / Product Leader · Just now</div>
-                </div>
+              <div className="mb-5">
+                <p className="text-[12px] font-semibold mb-0.5" style={{ color: "var(--text-2)" }}>Personal reshare</p>
+                <p className="text-[11.5px]" style={{ color: "var(--text-3)" }}>Copy and paste to LinkedIn personal feed or WhatsApp — ready to send</p>
               </div>
-              <div className="whitespace-pre-wrap text-[14px] leading-[1.7]" style={{ color: "var(--text-2)" }}>
-                {linkedinPost}
-              </div>
-            </div>
-          )}
-
-          {tab === "pov" && done && povPost && (
-            <div className="pb-8">
-              <div className="flex items-center gap-2 mb-5">
-                <div className="w-7 h-7 rounded-lg grid place-items-center flex-shrink-0"
-                  style={{ background: "#25D36622", border: "1px solid #25D36644" }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="#25D366">
-                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
-                    <path d="M11.998 2C6.477 2 2 6.477 2 11.998c0 1.746.45 3.385 1.236 4.812L2 22l5.338-1.396A9.931 9.931 0 0 0 11.998 22c5.522 0 9.998-4.478 9.998-9.998 0-5.522-4.476-10-9.998-10z" fillOpacity=".3"/>
-                  </svg>
-                </div>
-                <div>
-                  <div className="text-[12px] font-semibold" style={{ color: "#25D366" }}>WhatsApp &amp; LinkedIn Reshare</div>
-                  <div className="text-[11px]" style={{ color: "var(--text-3)" }}>Copy and paste directly — works on both platforms</div>
-                </div>
-              </div>
-              <div className="p-5 rounded-xl whitespace-pre-wrap text-[15px] leading-[1.75]"
+              <div className="p-5 rounded-xl whitespace-pre-wrap text-[15px] leading-[1.8]"
                 style={{ background: "var(--surface-2)", border: "1px solid var(--line-2)", color: "var(--text)", fontFamily: "inherit" }}>
-                {povPost}
+                {resharePost}
               </div>
             </div>
           )}
@@ -436,17 +398,15 @@ function NewsletterSlider({
 // ─── Content Lab ──────────────────────────────────────────────────────────────
 
 const LAB_PLATFORMS = [
-  { id: "linkedin", label: "LinkedIn",     color: "var(--linkedin)" },
-  { id: "x",        label: "X / Twitter",  color: "#46c4ac" },
-  { id: "video",    label: "Video Script", color: "var(--video)" },
-  { id: "substack", label: "Substack",     color: "var(--substack)" },
+  { id: "newsletter", label: "Newsletter · Substack", color: "var(--gold)" },
+  { id: "linkedin",   label: "LinkedIn Personal",    color: "var(--linkedin)" },
+  { id: "video",      label: "Video Script",         color: "var(--video)" },
 ]
 
 interface LabResult {
+  newsletter?: string
   linkedin?: string
-  x?: string[]
   video?: { hook: string; story: string; insight: string; close: string; caption: string }
-  substack?: { title: string; subtitle: string; opening: string; section1: string; section2: string; section3: string; closing: string }
 }
 
 function LabOutput({ result, platforms }: { result: LabResult; platforms: string[] }) {
@@ -464,66 +424,48 @@ function LabOutput({ result, platforms }: { result: LabResult; platforms: string
         </div>
       )}
 
-      {tab === "linkedin" && result.linkedin && (
-        <Card className="p-5">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl grid place-items-center font-semibold text-[16px]"
-              style={{ background: "linear-gradient(135deg, #2e2740, #1a1626)", color: "var(--gold)", border: "1px solid var(--line-2)" }}>A</div>
-            <div>
-              <div className="text-[14px] font-semibold" style={{ color: "var(--text)" }}>Adeniyi</div>
-              <div className="text-[12px]" style={{ color: "var(--text-3)" }}>Founder / Product Leader · 2nd</div>
+      {tab === "newsletter" && result.newsletter && (
+        <Card className="p-6" style={{ borderLeft: "3px solid var(--gold)", borderRadius: "0 12px 12px 0" }}>
+          <div className="flex items-center justify-between mb-4">
+            <div className="text-[11px] font-semibold tracking-[0.13em] uppercase" style={{ color: "var(--gold)" }}>
+              Newsletter · LinkedIn + Substack
             </div>
+            <Button size="sm" variant="secondary" onClick={() => navigator.clipboard.writeText(result.newsletter!).then(() => showToast("Newsletter copied!", "ok"))}>Copy</Button>
           </div>
-          <div className="text-[14px] leading-relaxed whitespace-pre-wrap mb-4" style={{ color: "var(--cream)" }}>{result.linkedin}</div>
-          <Button size="sm" variant="secondary" onClick={() => navigator.clipboard.writeText(result.linkedin!).then(() => showToast("Copied!", "ok"))}>Copy</Button>
+          <div className="whitespace-pre-wrap text-[14.5px] leading-[1.85] font-serif" style={{ color: "var(--text-2)" }}>
+            {result.newsletter}
+          </div>
         </Card>
       )}
 
-      {tab === "x" && result.x && (
-        <div className="flex flex-col gap-3">
-          {result.x.map((tweet, i) => (
-            <Card key={i} className="p-4">
-              <div className="flex items-start gap-3">
-                <div className="w-9 h-9 rounded-full grid place-items-center font-semibold flex-shrink-0"
-                  style={{ background: "linear-gradient(135deg, #2e2740, #1a1626)", color: "var(--gold)", border: "1px solid var(--line-2)" }}>A</div>
-                <div className="flex-1">
-                  {i > 0 && <div className="text-[11px] font-semibold mb-1" style={{ color: "var(--text-3)" }}>Tweet {i + 1}</div>}
-                  <p className="text-[14px] leading-relaxed" style={{ color: "var(--cream)" }}>{tweet}</p>
-                </div>
+      {tab === "linkedin" && result.linkedin && (
+        <Card className="p-5">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl grid place-items-center font-semibold text-[16px]"
+                style={{ background: "linear-gradient(135deg, #2e2740, #1a1626)", color: "var(--gold)", border: "1px solid var(--line-2)" }}>A</div>
+              <div>
+                <div className="text-[14px] font-semibold" style={{ color: "var(--text)" }}>Adeniyi</div>
+                <div className="text-[12px]" style={{ color: "var(--text-3)" }}>Founder / Product Leader · Just now</div>
               </div>
-              <div className="flex items-center justify-between mt-3 pt-3" style={{ borderTop: "1px solid var(--line)" }}>
-                <span className="text-[12px]" style={{ color: tweet.length > 260 ? "var(--danger)" : "var(--text-3)" }}>{tweet.length}/280</span>
-                <button onClick={() => navigator.clipboard.writeText(tweet).then(() => showToast("Copied!", "ok"))}
-                  className="text-[11.5px] px-2 py-1 rounded-md border cursor-pointer"
-                  style={{ color: "var(--text-3)", background: "transparent", borderColor: "var(--line)", fontFamily: "inherit" }}>Copy</button>
-              </div>
-            </Card>
-          ))}
-        </div>
+            </div>
+            <Button size="sm" variant="secondary" onClick={() => navigator.clipboard.writeText(result.linkedin!).then(() => showToast("Copied!", "ok"))}>Copy</Button>
+          </div>
+          <div className="text-[14px] leading-relaxed whitespace-pre-wrap" style={{ color: "var(--cream)" }}>{result.linkedin}</div>
+        </Card>
       )}
 
       {tab === "video" && result.video && (
         <div className="flex flex-col gap-3">
           {(["hook", "story", "insight", "close", "caption"] as const).map((key) => result.video![key] && (
             <Card key={key} className="p-4">
-              <div className="text-[11px] font-semibold tracking-[0.13em] uppercase mb-2" style={{ color: "var(--video)" }}>{key.toUpperCase()}</div>
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-[11px] font-semibold tracking-[0.13em] uppercase" style={{ color: "var(--video)" }}>{key.toUpperCase()}</div>
+                <button onClick={() => navigator.clipboard.writeText(result.video![key]).then(() => showToast("Copied!", "ok"))}
+                  className="text-[11px] px-2 py-0.5 rounded border cursor-pointer"
+                  style={{ color: "var(--text-3)", background: "transparent", borderColor: "var(--line)", fontFamily: "inherit" }}>Copy</button>
+              </div>
               <p className="text-[13.5px] leading-relaxed" style={{ color: "var(--cream)" }}>{result.video![key]}</p>
-            </Card>
-          ))}
-        </div>
-      )}
-
-      {tab === "substack" && result.substack && (
-        <div className="flex flex-col gap-3">
-          <Card className="p-4" style={{ borderLeft: "3px solid var(--substack)", borderRadius: "0 12px 12px 0" }}>
-            <div className="text-[11px] font-semibold tracking-[0.13em] uppercase mb-1" style={{ color: "var(--substack)" }}>TITLE</div>
-            <p className="font-serif text-[19px]" style={{ color: "var(--text)" }}>{result.substack.title}</p>
-            {result.substack.subtitle && <p className="text-[13px] mt-1" style={{ color: "var(--text-3)" }}>{result.substack.subtitle}</p>}
-          </Card>
-          {(["opening", "section1", "section2", "section3", "closing"] as const).map((key) => result.substack![key] && (
-            <Card key={key} className="p-4">
-              <div className="text-[11px] font-semibold tracking-[0.13em] uppercase mb-2" style={{ color: "var(--substack)" }}>{key.replace(/(\d)/, " $1").toUpperCase()}</div>
-              <p className="text-[13.5px] leading-relaxed" style={{ color: "var(--cream)" }}>{result.substack![key]}</p>
             </Card>
           ))}
         </div>
@@ -560,7 +502,7 @@ export default function AIBriefPage() {
 
   // Content Lab
   const [labIdea, setLabIdea] = useState("")
-  const [labPlatforms, setLabPlatforms] = useState<Set<string>>(new Set(["linkedin"]))
+  const [labPlatforms, setLabPlatforms] = useState<Set<string>>(new Set(["newsletter"]))
   const [labLoading, setLabLoading] = useState(false)
   const [labResult, setLabResult] = useState<LabResult | null>(null)
   const [labSelectedPlatforms, setLabSelectedPlatforms] = useState<string[]>([])
@@ -756,7 +698,7 @@ export default function AIBriefPage() {
           <>
             <Card className="p-5 mb-5">
               <p className="text-[15px] font-semibold mb-1" style={{ color: "var(--text)" }}>What's the idea?</p>
-              <p className="text-[12.5px] mb-4" style={{ color: "var(--text-3)" }}>Drop a raw idea, topic, or observation. The AI will figure out the angle and produce platform-ready content.</p>
+              <p className="text-[12.5px] mb-4" style={{ color: "var(--text-3)" }}>Drop a raw idea, topic, or observation. The AI writes the complete piece — publication-ready, Nigerian context where it applies, global framing throughout. Copy and publish.</p>
               <textarea
                 className="w-full rounded-xl text-[14px] leading-relaxed resize-none outline-none px-4 py-3"
                 style={{
