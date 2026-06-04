@@ -7,7 +7,7 @@ import { useAppStore } from "@/store/useAppStore"
 import type { ContentItem, ContentStatus } from "@/types"
 import Link from "next/link"
 
-const PLATFORMS = ["All", "Video", "LinkedIn", "X", "Substack"]
+const PLATFORMS = ["All", "Newsletter", "Video", "LinkedIn", "X", "Substack"]
 const STATUSES = ["All", "Idea", "Draft", "Ready to Record", "Published"]
 
 function FilterGroup({ label, options, value, onChange }: { label: string; options: string[]; value: string; onChange: (v: string) => void }) {

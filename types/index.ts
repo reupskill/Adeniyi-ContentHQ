@@ -1,4 +1,4 @@
-export type Platform = "Video" | "LinkedIn" | "X" | "Substack" | "All"
+export type Platform = "Video" | "LinkedIn" | "X" | "Substack" | "Newsletter" | "All"
 export type ContentStatus = "Idea" | "Draft" | "Ready to Record" | "Published"
 
 export interface ContentItem {

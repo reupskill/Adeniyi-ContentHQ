@@ -1,10 +1,10 @@
 "use client"
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Topbar } from "@/components/layout/Topbar"
 import { Button, Card, Tabs } from "@/components/ui"
 import { useAppStore } from "@/store/useAppStore"
 
-// ─── Markdown rendering ──────────────────────────────────────────────────────
+// ─── Markdown rendering ───────────────────────────────────────────────────────
 
 function renderInline(text: string): React.ReactNode {
   const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g)
@@ -17,39 +17,13 @@ function renderInline(text: string): React.ReactNode {
   })
 }
 
-function buildSearchUrl(headline: string, publication: string, searchQuery: string) {
-  const q = searchQuery || `${headline} ${publication}`
-  return `https://www.google.com/search?q=${encodeURIComponent(q)}`
-}
-
-function renderLine(line: string, i: number, onSaveStory?: (title: string, body: string) => void): React.ReactNode {
+function renderLine(line: string, i: number): React.ReactNode {
   if (!line.trim()) return <div key={i} className="h-1.5" />
   if (line.trim() === "---") return <hr key={i} className="my-4 border-0 border-t" style={{ borderColor: "var(--line-2)" }} />
 
-  // Story header: **Story N: headline**
-  const storyMatch = line.trim().match(/^\*\*Story (\d+): (.+)\*\*$/)
-  if (storyMatch) {
-    return (
-      <div key={i} className="flex items-start justify-between gap-3 mt-4 mb-2">
-        <p className="text-[14px] font-semibold" style={{ color: "var(--text)" }}>
-          <span className="text-[11px] font-semibold mr-2 px-1.5 py-0.5 rounded" style={{ background: "var(--gold-dim)", color: "var(--gold)" }}>
-            #{storyMatch[1]}
-          </span>
-          {storyMatch[2]}
-        </p>
-        {onSaveStory && (
-          <button
-            onClick={() => onSaveStory(storyMatch[2], line)}
-            className="flex-shrink-0 text-[11px] px-2 py-1 rounded-md border cursor-pointer transition-all"
-            style={{ background: "var(--gold-dim)", borderColor: "var(--gold-line)", color: "var(--gold)", fontFamily: "inherit" }}>
-            + Save to Bank
-          </button>
-        )}
-      </div>
-    )
-  }
+  // Story header: skip — rendered by StoryBlock
+  if (/^\*\*Story \d+:.*\*\*$/.test(line.trim())) return null
 
-  // Other bold-only lines
   if (/^\*\*.*\*\*$/.test(line.trim())) {
     return (
       <p key={i} className="text-[13.5px] font-semibold mt-3 mb-1" style={{ color: "var(--text)" }}>
@@ -58,15 +32,13 @@ function renderLine(line: string, i: number, onSaveStory?: (title: string, body:
     )
   }
 
-  // Source search link: - Search: [query]
   const searchMatch = line.match(/^[-*]\s*\*?Search:\*?\s*(.+)/)
   if (searchMatch) {
     return (
       <div key={i} className="flex gap-2.5 my-0.5 items-center">
         <span style={{ color: "var(--gold)", flexShrink: 0 }}>·</span>
         <span className="text-[12.5px]" style={{ color: "var(--text-3)" }}>Search:</span>
-        <a
-          href={`https://www.google.com/search?q=${encodeURIComponent(searchMatch[1])}`}
+        <a href={`https://www.google.com/search?q=${encodeURIComponent(searchMatch[1])}`}
           target="_blank" rel="noopener noreferrer"
           className="text-[12.5px] underline decoration-dotted transition-colors"
           style={{ color: "var(--linkedin)" }}>
@@ -76,7 +48,6 @@ function renderLine(line: string, i: number, onSaveStory?: (title: string, body:
     )
   }
 
-  // Publication line: - Publication: [name]
   const pubMatch = line.match(/^[-*]\s*\*?Publication:\*?\s*(.+)/)
   if (pubMatch) {
     return (
@@ -88,7 +59,6 @@ function renderLine(line: string, i: number, onSaveStory?: (title: string, body:
     )
   }
 
-  // Label: value line (- **Label:** value)
   const labelMatch = line.match(/^[-*]?\s*\*\*([^*]+):\*\*\s*(.*)/)
   if (labelMatch) {
     return (
@@ -99,7 +69,6 @@ function renderLine(line: string, i: number, onSaveStory?: (title: string, body:
     )
   }
 
-  // Bullet
   const bulletMatch = line.match(/^[-*]\s+(.+)/)
   if (bulletMatch) {
     return (
@@ -110,7 +79,6 @@ function renderLine(line: string, i: number, onSaveStory?: (title: string, body:
     )
   }
 
-  // Numbered list
   const numMatch = line.match(/^(\d+)\.\s+(.+)/)
   if (numMatch) {
     return (
@@ -128,6 +96,68 @@ function renderLine(line: string, i: number, onSaveStory?: (title: string, body:
   )
 }
 
+// ─── Story block parsing ──────────────────────────────────────────────────────
+
+function parseStoryBlocks(body: string): Array<{ num: string; headline: string; fullBlock: string }> {
+  const lines = body.split("\n")
+  const blocks: Array<{ num: string; headline: string; lines: string[] }> = []
+  let current: { num: string; headline: string; lines: string[] } | null = null
+
+  for (const line of lines) {
+    const match = line.trim().match(/^\*\*Story (\d+): (.+)\*\*$/)
+    if (match) {
+      if (current) blocks.push(current)
+      current = { num: match[1], headline: match[2], lines: [line] }
+    } else if (current) {
+      current.lines.push(line)
+    }
+  }
+  if (current) blocks.push(current)
+  return blocks.map((b) => ({ num: b.num, headline: b.headline, fullBlock: b.lines.join("\n") }))
+}
+
+function StoryBlock({
+  num, headline, fullBlock, onSave, onNewsletter,
+}: {
+  num: string
+  headline: string
+  fullBlock: string
+  onSave: (title: string, content: string) => void
+  onNewsletter: (headline: string, storyBody: string) => void
+}) {
+  const bodyLines = fullBlock.split("\n").slice(1)
+  return (
+    <div className="mb-5 pb-5" style={{ borderBottom: "1px solid var(--line)" }}>
+      <div className="flex items-start justify-between gap-3 mb-3">
+        <p className="text-[14px] font-semibold leading-snug flex-1" style={{ color: "var(--text)" }}>
+          <span className="text-[11px] font-semibold mr-2 px-1.5 py-0.5 rounded"
+            style={{ background: "var(--gold-dim)", color: "var(--gold)" }}>
+            #{num}
+          </span>
+          {headline}
+        </p>
+        <div className="flex gap-2 flex-shrink-0">
+          <button
+            onClick={() => onSave(headline, fullBlock)}
+            className="text-[11px] px-2 py-1 rounded-md border cursor-pointer transition-all"
+            style={{ background: "var(--surface-2)", borderColor: "var(--line-2)", color: "var(--text-3)", fontFamily: "inherit" }}>
+            + Save
+          </button>
+          <button
+            onClick={() => onNewsletter(headline, fullBlock)}
+            className="text-[11px] px-2.5 py-1 rounded-md border cursor-pointer transition-all font-semibold"
+            style={{ background: "var(--gold-dim)", borderColor: "var(--gold-line)", color: "var(--gold)", fontFamily: "inherit" }}>
+            Write Newsletter →
+          </button>
+        </div>
+      </div>
+      <div>{bodyLines.map((line, i) => renderLine(line, i))}</div>
+    </div>
+  )
+}
+
+// ─── Brief section ────────────────────────────────────────────────────────────
+
 const SECTION_COLORS: Record<string, string> = {
   "1": "var(--gold)",
   "2": "var(--video)",
@@ -137,52 +167,245 @@ const SECTION_COLORS: Record<string, string> = {
 }
 
 function BriefSection({
-  title, body, onSaveStory
+  title, body, onSaveStory, onWriteNewsletter,
 }: {
   title: string
   body: string
-  onSaveStory?: (storyTitle: string, content: string) => void
+  onSaveStory?: (title: string, content: string) => void
+  onWriteNewsletter?: (headline: string, storyBody: string) => void
 }) {
   const num = title.match(/^(\d+)/)?.[1] || (title.startsWith("Today") ? "Today" : "")
   const color = SECTION_COLORS[num] || "var(--text-3)"
   const isStories = num === "1"
-  const lines = body.split("\n")
 
   return (
     <Card className="p-5 mb-4" style={{ borderLeft: `3px solid ${color}`, borderRadius: "0 12px 12px 0" }}>
       <div className="text-[11px] font-semibold tracking-[0.13em] uppercase mb-4" style={{ color }}>
         {title.replace(/^\d+\.\s*/, "")}
       </div>
-      <div>
-        {lines.map((line, i) =>
-          renderLine(line, i, isStories ? onSaveStory : undefined)
-        )}
-      </div>
+      {isStories && onSaveStory && onWriteNewsletter ? (
+        parseStoryBlocks(body).map((block) => (
+          <StoryBlock
+            key={block.num}
+            num={block.num}
+            headline={block.headline}
+            fullBlock={block.fullBlock}
+            onSave={onSaveStory}
+            onNewsletter={onWriteNewsletter}
+          />
+        ))
+      ) : (
+        <div>{body.split("\n").map((line, i) => renderLine(line, i))}</div>
+      )}
     </Card>
   )
 }
 
-function parseSections(text: string): Array<{ title: string; body: string }> {
-  const parts = text.split(/(?=^### )/m)
-  return parts
-    .map((part) => {
-      const nl = part.indexOf("\n")
-      if (nl === -1) return null
-      return {
-        title: part.slice(0, nl).replace(/^### /, "").trim(),
-        body: part.slice(nl + 1).trim(),
+// ─── Newsletter slide-over ────────────────────────────────────────────────────
+
+function NewsletterSlider({
+  headline,
+  storyBody,
+  onClose,
+}: {
+  headline: string
+  storyBody: string
+  onClose: () => void
+}) {
+  const { showToast } = useAppStore()
+  const [streaming, setStreaming] = useState(true)
+  const [nlText, setNlText] = useState("")
+  const [linkedinPost, setLinkedinPost] = useState("")
+  const [savedId, setSavedId] = useState<string | null>(null)
+  const [tab, setTab] = useState<"newsletter" | "linkedin">("newsletter")
+  const abortRef = useRef<AbortController | null>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    runGenerate()
+    return () => abortRef.current?.abort()
+  }, [])
+
+  useEffect(() => {
+    if (streaming && scrollRef.current)
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+  }, [nlText])
+
+  const runGenerate = async () => {
+    setStreaming(true)
+    abortRef.current = new AbortController()
+    try {
+      const res = await fetch("/api/generate/trust-newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ headline, storyBody }),
+        signal: abortRef.current.signal,
+      })
+      if (!res.ok) { showToast("Generation failed", "error"); setStreaming(false); return }
+
+      const reader = res.body!.getReader()
+      const decoder = new TextDecoder()
+      let buffer = "", full = ""
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        buffer += decoder.decode(value, { stream: true })
+        const lines = buffer.split("\n")
+        buffer = lines.pop() || ""
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue
+          const raw = line.slice(6)
+          if (raw === "[DONE]") break
+          try {
+            const p = JSON.parse(raw)
+            if (p.text) { full += p.text; setNlText(full) }
+            if (p.done) {
+              setLinkedinPost(p.linkedinPost || "")
+              setSavedId(p.id || null)
+              showToast("Newsletter saved to Content Bank", "ok")
+            }
+          } catch {}
+        }
       }
-    })
-    .filter(Boolean) as Array<{ title: string; body: string }>
+    } catch (e: any) {
+      if (e.name !== "AbortError") showToast("Generation failed", "error")
+    } finally {
+      setStreaming(false)
+    }
+  }
+
+  const wordCount = nlText.split(/\s+/).filter(Boolean).length
+  const done = !streaming && !!nlText
+
+  return (
+    <div className="fixed inset-0 z-50 flex justify-end">
+      <div className="absolute inset-0" style={{ background: "rgba(0,0,0,0.55)" }} onClick={onClose} />
+      <div className="relative flex flex-col h-full w-full max-w-[700px] shadow-2xl"
+        style={{ background: "var(--surface)", borderLeft: "1px solid var(--line-2)" }}>
+
+        {/* Header */}
+        <div className="flex items-start justify-between px-6 py-5 flex-shrink-0"
+          style={{ borderBottom: "1px solid var(--line)" }}>
+          <div className="flex-1 min-w-0 pr-4">
+            <div className="text-[11px] font-semibold tracking-[0.12em] uppercase mb-1.5"
+              style={{ color: "var(--gold)" }}>Trust Economy Brief · Newsletter</div>
+            <p className="text-[14px] font-semibold leading-snug" style={{ color: "var(--text)" }}>
+              {headline}
+            </p>
+          </div>
+          <button onClick={onClose}
+            className="flex-shrink-0 w-8 h-8 rounded-lg grid place-items-center cursor-pointer border"
+            style={{ background: "var(--surface-2)", borderColor: "var(--line)", color: "var(--text-2)", fontFamily: "inherit" }}>
+            ✕
+          </button>
+        </div>
+
+        {/* Streaming status */}
+        {streaming && (
+          <div className="flex items-center gap-2.5 px-6 py-2 flex-shrink-0"
+            style={{ background: "var(--gold-dim)", borderBottom: "1px solid var(--gold-line)" }}>
+            <div className="w-2 h-2 rounded-full animate-pulse-glow flex-shrink-0" style={{ background: "var(--gold)" }} />
+            <span className="text-[12px] font-medium" style={{ color: "var(--gold)" }}>
+              Writing newsletter… {wordCount} words
+            </span>
+          </div>
+        )}
+
+        {/* Done toolbar */}
+        {done && (
+          <div className="flex items-center justify-between px-6 py-2.5 flex-shrink-0"
+            style={{ background: "var(--surface-2)", borderBottom: "1px solid var(--line)" }}>
+            <div className="flex items-center gap-3">
+              <div className="flex gap-1.5">
+                <button onClick={() => setTab("newsletter")}
+                  className="text-[12px] font-semibold px-3 py-1 rounded-md cursor-pointer border transition-all"
+                  style={{
+                    background: tab === "newsletter" ? "var(--gold-dim)" : "transparent",
+                    borderColor: tab === "newsletter" ? "var(--gold-line)" : "var(--line)",
+                    color: tab === "newsletter" ? "var(--gold)" : "var(--text-3)",
+                    fontFamily: "inherit",
+                  }}>Newsletter</button>
+                {linkedinPost && (
+                  <button onClick={() => setTab("linkedin")}
+                    className="text-[12px] font-semibold px-3 py-1 rounded-md cursor-pointer border transition-all"
+                    style={{
+                      background: tab === "linkedin" ? "#0A66C222" : "transparent",
+                      borderColor: tab === "linkedin" ? "#0A66C2" : "var(--line)",
+                      color: tab === "linkedin" ? "var(--linkedin)" : "var(--text-3)",
+                      fontFamily: "inherit",
+                    }}>LinkedIn Post</button>
+                )}
+              </div>
+              {savedId && (
+                <span className="text-[11.5px] font-medium" style={{ color: "var(--published)" }}>✓ Saved to Bank</span>
+              )}
+            </div>
+            <Button size="sm" variant="secondary"
+              onClick={() => {
+                const text = tab === "linkedin" ? linkedinPost : nlText
+                navigator.clipboard.writeText(text).then(() =>
+                  showToast(tab === "linkedin" ? "LinkedIn post copied!" : "Newsletter copied!", "ok"))
+              }}>
+              Copy
+            </Button>
+          </div>
+        )}
+
+        {/* Content */}
+        <div ref={scrollRef} className="flex-1 overflow-y-auto px-6 py-6">
+          {!nlText && streaming && (
+            <div className="flex flex-col items-center py-20">
+              <div className="flex gap-1.5 mb-4">
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className="w-2 h-2 rounded-full animate-pulse-glow"
+                    style={{ background: "var(--gold)", animationDelay: `${i * 0.2}s` }} />
+                ))}
+              </div>
+              <p className="text-[13px]" style={{ color: "var(--text-3)" }}>Writing today's newsletter…</p>
+            </div>
+          )}
+
+          {tab === "newsletter" && nlText && (
+            <div className="whitespace-pre-wrap text-[14.5px] leading-[1.8] font-serif pb-8"
+              style={{ color: "var(--text-2)" }}>
+              {nlText}
+              {streaming && (
+                <span className="inline-block w-0.5 h-[1em] ml-0.5 animate-pulse"
+                  style={{ background: "var(--gold)", verticalAlign: "text-bottom" }} />
+              )}
+            </div>
+          )}
+
+          {tab === "linkedin" && done && linkedinPost && (
+            <div className="pb-8">
+              <div className="flex items-center gap-3 mb-5 p-4 rounded-xl"
+                style={{ background: "var(--surface-2)", border: "1px solid var(--line-2)" }}>
+                <div className="w-11 h-11 rounded-full grid place-items-center font-semibold text-[17px] flex-shrink-0"
+                  style={{ background: "linear-gradient(135deg, #2e2740, #1a1626)", color: "var(--gold)", border: "1px solid var(--line-2)" }}>A</div>
+                <div>
+                  <div className="text-[13.5px] font-semibold" style={{ color: "var(--text)" }}>Adeniyi</div>
+                  <div className="text-[12px]" style={{ color: "var(--text-3)" }}>Founder / Product Leader · Just now</div>
+                </div>
+              </div>
+              <div className="whitespace-pre-wrap text-[14px] leading-[1.7]" style={{ color: "var(--text-2)" }}>
+                {linkedinPost}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
 }
 
-// ─── Content Lab ─────────────────────────────────────────────────────────────
+// ─── Content Lab ──────────────────────────────────────────────────────────────
 
 const LAB_PLATFORMS = [
-  { id: "linkedin", label: "LinkedIn", color: "var(--linkedin)" },
-  { id: "x",        label: "X / Twitter", color: "#46c4ac" },
+  { id: "linkedin", label: "LinkedIn",     color: "var(--linkedin)" },
+  { id: "x",        label: "X / Twitter",  color: "#46c4ac" },
   { id: "video",    label: "Video Script", color: "var(--video)" },
-  { id: "substack", label: "Substack", color: "var(--substack)" },
+  { id: "substack", label: "Substack",     color: "var(--substack)" },
 ]
 
 interface LabResult {
@@ -195,15 +418,15 @@ interface LabResult {
 function LabOutput({ result, platforms }: { result: LabResult; platforms: string[] }) {
   const [tab, setTab] = useState(platforms[0])
   const { showToast } = useAppStore()
-
-  const activePlatforms = LAB_PLATFORMS.filter(p => platforms.includes(p.id))
-  if (!activePlatforms.length) return null
+  const active = LAB_PLATFORMS.filter((p) => platforms.includes(p.id))
+  if (!active.length) return null
 
   return (
     <div>
-      {activePlatforms.length > 1 && (
+      {active.length > 1 && (
         <div className="mb-4">
-          <Tabs options={activePlatforms.map(p => p.label)} value={activePlatforms.find(p => p.id === tab)?.label || ""} onChange={(l) => setTab(activePlatforms.find(p => p.label === l)?.id || "")} />
+          <Tabs options={active.map((p) => p.label)} value={active.find((p) => p.id === tab)?.label || ""}
+            onChange={(l) => setTab(active.find((p) => p.label === l)?.id || "")} />
         </div>
       )}
 
@@ -277,17 +500,31 @@ function LabOutput({ result, platforms }: { result: LabResult; platforms: string
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 
+function parseSections(text: string): Array<{ title: string; body: string }> {
+  const parts = text.split(/(?=^### )/m)
+  return parts
+    .map((part) => {
+      const nl = part.indexOf("\n")
+      if (nl === -1) return null
+      return { title: part.slice(0, nl).replace(/^### /, "").trim(), body: part.slice(nl + 1).trim() }
+    })
+    .filter(Boolean) as Array<{ title: string; body: string }>
+}
+
 export default function AIBriefPage() {
   const [activeTab, setActiveTab] = useState("Daily Brief")
   const { showToast } = useAppStore()
 
-  // Daily Brief state
+  // Daily Brief
   const [briefStreaming, setBriefStreaming] = useState(false)
   const [streamText, setStreamText] = useState("")
   const [sections, setSections] = useState<Array<{ title: string; body: string }> | null>(null)
   const abortRef = useRef<AbortController | null>(null)
 
-  // Content Lab state
+  // Newsletter slide-over
+  const [nlSlider, setNlSlider] = useState<{ headline: string; storyBody: string } | null>(null)
+
+  // Content Lab
   const [labIdea, setLabIdea] = useState("")
   const [labPlatforms, setLabPlatforms] = useState<Set<string>>(new Set(["linkedin"]))
   const [labLoading, setLabLoading] = useState(false)
@@ -296,8 +533,6 @@ export default function AIBriefPage() {
 
   const today = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })
   const wordCount = streamText.split(/\s+/).filter(Boolean).length
-
-  // ── Daily Brief ──
 
   const generateBrief = async () => {
     setBriefStreaming(true)
@@ -349,10 +584,8 @@ export default function AIBriefPage() {
     } catch { showToast("Failed to save", "error") }
   }
 
-  // ── Content Lab ──
-
   const togglePlatform = (id: string) => {
-    setLabPlatforms(prev => {
+    setLabPlatforms((prev) => {
       const next = new Set(prev)
       if (next.has(id)) next.delete(id)
       else next.add(id)
@@ -391,7 +624,7 @@ export default function AIBriefPage() {
           <Tabs options={["Daily Brief", "Content Lab"]} value={activeTab} onChange={setActiveTab} />
         </div>
 
-        {/* ── Daily Brief tab ── */}
+        {/* ── Daily Brief ── */}
         {activeTab === "Daily Brief" && (
           <>
             <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
@@ -471,14 +704,20 @@ export default function AIBriefPage() {
                   ))}
                 </div>
                 {sections.map(({ title, body }) => (
-                  <BriefSection key={title} title={title} body={body} onSaveStory={saveStoryToBank} />
+                  <BriefSection
+                    key={title}
+                    title={title}
+                    body={body}
+                    onSaveStory={saveStoryToBank}
+                    onWriteNewsletter={(headline, storyBody) => setNlSlider({ headline, storyBody })}
+                  />
                 ))}
               </div>
             )}
           </>
         )}
 
-        {/* ── Content Lab tab ── */}
+        {/* ── Content Lab ── */}
         {activeTab === "Content Lab" && (
           <>
             <Card className="p-5 mb-5">
@@ -497,7 +736,6 @@ export default function AIBriefPage() {
                 onChange={(e) => setLabIdea(e.target.value)}
                 placeholder="e.g. Most founders confuse activity with execution. They celebrate being busy instead of measuring what actually moved the needle…"
               />
-
               <div className="mt-4 mb-4">
                 <p className="text-[11.5px] font-semibold tracking-[0.1em] uppercase mb-3" style={{ color: "var(--text-3)" }}>Generate for</p>
                 <div className="flex gap-2 flex-wrap">
@@ -519,7 +757,6 @@ export default function AIBriefPage() {
                   })}
                 </div>
               </div>
-
               <Button variant="primary" loading={labLoading} onClick={generateLab} disabled={!labIdea.trim() || !labPlatforms.size}>
                 {labLoading ? "Generating…" : `Generate for ${labPlatforms.size} platform${labPlatforms.size !== 1 ? "s" : ""}`}
               </Button>
@@ -547,6 +784,15 @@ export default function AIBriefPage() {
           </>
         )}
       </div>
+
+      {/* Newsletter slide-over */}
+      {nlSlider && (
+        <NewsletterSlider
+          headline={nlSlider.headline}
+          storyBody={nlSlider.storyBody}
+          onClose={() => setNlSlider(null)}
+        />
+      )}
     </>
   )
 }

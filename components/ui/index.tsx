@@ -21,11 +21,12 @@ export function StatusBadge({ status }: { status: StatusType }) {
 
 type Platform = "Video" | "LinkedIn" | "X" | "Substack" | "All" | string
 const PLATFORM_STYLES: Record<string, { color: string; bg: string }> = {
-  Video: { color: "var(--video)", bg: "var(--video-bg)" },
-  LinkedIn: { color: "var(--linkedin)", bg: "var(--linkedin-bg)" },
-  X: { color: "var(--x)", bg: "var(--x-bg)" },
-  Substack: { color: "var(--substack)", bg: "var(--substack-bg)" },
-  All: { color: "var(--text-2)", bg: "rgba(255,255,255,0.06)" },
+  Video:      { color: "var(--video)",     bg: "var(--video-bg)" },
+  LinkedIn:   { color: "var(--linkedin)",  bg: "var(--linkedin-bg)" },
+  X:          { color: "var(--x)",         bg: "var(--x-bg)" },
+  Substack:   { color: "var(--substack)",  bg: "var(--substack-bg)" },
+  Newsletter: { color: "var(--gold)",      bg: "var(--gold-dim)" },
+  All:        { color: "var(--text-2)",    bg: "rgba(255,255,255,0.06)" },
 }
 export function PlatformBadge({ platform }: { platform: Platform }) {
   const s = PLATFORM_STYLES[platform] || PLATFORM_STYLES.All
