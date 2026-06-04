@@ -1,13 +1,15 @@
 "use client"
 import { useState } from "react"
 import { Topbar } from "@/components/layout/Topbar"
-import { InputPanel, DEFAULT_INPUTS, GeneratorInputs } from "@/components/generators/InputPanel"
+import { InputPanel, GeneratorInputs } from "@/components/generators/InputPanel"
+import { PlatformSwitcher } from "@/components/generators/PlatformSwitcher"
 import { Button, Tabs, GenLoading, GenEmpty, Card } from "@/components/ui"
 import { useGenerate } from "@/hooks/useGenerate"
+import { useGeneratorInit } from "@/hooks/useGeneratorInit"
 import { useAppStore } from "@/store/useAppStore"
 
 export default function LinkedInPage() {
-  const [inputs, setInputs] = useState<GeneratorInputs>(DEFAULT_INPUTS)
+  const { inputs, setInputs, prefilled } = useGeneratorInit("linkedin")
   const [posts, setPosts] = useState<string[]>([])
   const [activeTab, setActiveTab] = useState("Variation 1")
   const { showToast } = useAppStore()
@@ -28,10 +30,11 @@ export default function LinkedInPage() {
     <>
       <Topbar title="LinkedIn Post Generator" sub="Reflective posts that build influence" />
       <div className="px-8 py-7 max-w-[1620px] w-full mx-auto pb-16">
+        <PlatformSwitcher idea={inputs.idea} />
         <div className="grid gap-5" style={{ gridTemplateColumns: "344px 1fr", alignItems: "start" }}>
           <Card className="p-5 sticky top-[88px]">
             <div className="text-[16px] font-semibold mb-4" style={{ color: "var(--text)" }}>Post Inputs</div>
-            <InputPanel values={inputs} onChange={set} />
+            <InputPanel values={inputs} onChange={set} prefilled={prefilled ?? undefined} />
             <Button variant="primary" block loading={isLoading} className="mt-1.5"
               onClick={() => generate({ ...inputs })}>
               {isLoading ? "Generating…" : "Generate Post"}
@@ -49,7 +52,6 @@ export default function LinkedInPage() {
                       <Tabs options={posts.map((_, i) => `Variation ${i + 1}`)} value={activeTab} onChange={setActiveTab} />
                     </div>
                   )}
-                  {/* LinkedIn preview card */}
                   <Card className="p-5 mb-4">
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-10 h-10 rounded-xl grid place-items-center font-semibold text-[16px]"

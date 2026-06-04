@@ -1,29 +1,31 @@
 "use client"
-import { useState, useRef } from "react"
+import { useRef } from "react"
+import { useState } from "react"
 import { Topbar } from "@/components/layout/Topbar"
-import { InputPanel, DEFAULT_INPUTS, GeneratorInputs } from "@/components/generators/InputPanel"
+import { InputPanel, GeneratorInputs } from "@/components/generators/InputPanel"
+import { PlatformSwitcher } from "@/components/generators/PlatformSwitcher"
 import { Button, OutputCard, GenLoading, GenEmpty, Card } from "@/components/ui"
+import { useGeneratorInit } from "@/hooks/useGeneratorInit"
 import { useAppStore } from "@/store/useAppStore"
 
 const SECTIONS = [
-  { key: "titleOptions", label: "TITLE OPTIONS", color: "var(--video)" },
-  { key: "subtitle", label: "SUBTITLE", color: "var(--linkedin)" },
-  { key: "openingStory", label: "OPENING STORY", color: "var(--substack)" },
-  { key: "mainArgument", label: "MAIN ARGUMENT", color: "var(--gold)" },
-  { key: "section1", label: "SECTION 1", color: "var(--ready)" },
-  { key: "section2", label: "SECTION 2", color: "var(--ready)" },
-  { key: "section3", label: "SECTION 3", color: "var(--ready)" },
-  { key: "practicalReflection", label: "PRACTICAL REFLECTION", color: "var(--c-teal, #46c4ac)" },
-  { key: "closingParagraph", label: "CLOSING PARAGRAPH", color: "var(--video)" },
-  { key: "newsletterCta", label: "NEWSLETTER CTA", color: "var(--gold)" },
+  { key: "titleOptions",         label: "TITLE OPTIONS",         color: "var(--video)" },
+  { key: "subtitle",             label: "SUBTITLE",              color: "var(--linkedin)" },
+  { key: "openingStory",         label: "OPENING STORY",         color: "var(--substack)" },
+  { key: "mainArgument",         label: "MAIN ARGUMENT",         color: "var(--gold)" },
+  { key: "section1",             label: "SECTION 1",             color: "var(--ready)" },
+  { key: "section2",             label: "SECTION 2",             color: "var(--ready)" },
+  { key: "section3",             label: "SECTION 3",             color: "var(--ready)" },
+  { key: "practicalReflection",  label: "PRACTICAL REFLECTION",  color: "var(--c-teal, #46c4ac)" },
+  { key: "closingParagraph",     label: "CLOSING PARAGRAPH",     color: "var(--video)" },
+  { key: "newsletterCta",        label: "NEWSLETTER CTA",        color: "var(--gold)" },
 ]
 
 export default function SubstackPage() {
-  const [inputs, setInputs] = useState<GeneratorInputs>(DEFAULT_INPUTS)
+  const { inputs, setInputs, prefilled } = useGeneratorInit("substack")
   const [streaming, setStreaming] = useState(false)
   const [streamText, setStreamText] = useState("")
   const [sections, setSections] = useState<Record<string, string> | null>(null)
-  const [savedId, setSavedId] = useState<string | null>(null)
   const { showToast } = useAppStore()
   const abortRef = useRef<AbortController | null>(null)
 
@@ -63,7 +65,6 @@ export default function SubstackPage() {
             if (parsed.text) setStreamText((t) => t + parsed.text)
             if (parsed.done) {
               setSections(parsed.sections || {})
-              setSavedId(parsed.id)
               showToast("Essay generated and saved", "ok")
             }
           } catch {}
@@ -82,10 +83,11 @@ export default function SubstackPage() {
     <>
       <Topbar title="Substack Essay Builder" sub="Long-form thinking, fully structured" />
       <div className="px-8 py-7 max-w-[1620px] w-full mx-auto pb-16">
+        <PlatformSwitcher idea={inputs.idea} />
         <div className="grid gap-5" style={{ gridTemplateColumns: "344px 1fr", alignItems: "start" }}>
           <Card className="p-5 sticky top-[88px]">
             <div className="text-[16px] font-semibold mb-4" style={{ color: "var(--text)" }}>Essay Inputs</div>
-            <InputPanel values={inputs} onChange={set} />
+            <InputPanel values={inputs} onChange={set} prefilled={prefilled ?? undefined} />
             <Button variant="primary" block loading={streaming} className="mt-1.5" onClick={handleGenerate}>
               {streaming ? "Writing essay…" : "Generate Essay"}
             </Button>

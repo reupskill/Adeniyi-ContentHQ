@@ -1,17 +1,12 @@
 "use client"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Topbar } from "@/components/layout/Topbar"
-import { InputPanel, DEFAULT_INPUTS, GeneratorInputs } from "@/components/generators/InputPanel"
+import { InputPanel, GeneratorInputs } from "@/components/generators/InputPanel"
+import { PlatformSwitcher } from "@/components/generators/PlatformSwitcher"
 import { Button, OutputCard, GenLoading, GenEmpty, Card } from "@/components/ui"
 import { useGenerate } from "@/hooks/useGenerate"
+import { useGeneratorInit } from "@/hooks/useGeneratorInit"
 import { useAppStore } from "@/store/useAppStore"
-
-const PLATFORMS = [
-  { id: "video", label: "Video" },
-  { id: "linkedin", label: "LinkedIn" },
-  { id: "x", label: "X" },
-  { id: "substack", label: "Substack" },
-]
 
 interface ScriptOutput {
   id: string
@@ -41,15 +36,7 @@ const SECTION_LABELS: Record<string, string> = {
 }
 
 export default function VideoPage() {
-  const [inputs, setInputs] = useState<GeneratorInputs>(DEFAULT_INPUTS)
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const idea = params.get("idea")
-    const hook = params.get("hook")
-    if (idea) setInputs((prev) => ({ ...prev, idea, story: hook || prev.story }))
-  }, [])
-  const [platforms, setPlatforms] = useState({ video: true, linkedin: false, x: false, substack: false })
+  const { inputs, setInputs, prefilled } = useGeneratorInit("video")
   const [result, setResult] = useState<ScriptOutput | null>(null)
   const { showToast } = useAppStore()
   const { generate, isLoading, error } = useGenerate({
@@ -62,7 +49,6 @@ export default function VideoPage() {
   })
 
   const set = (k: keyof GeneratorInputs, v: string | number) => setInputs((prev) => ({ ...prev, [k]: v }))
-  const togglePlat = (p: string) => setPlatforms((s) => ({ ...s, [p]: !s[p as keyof typeof s] }))
 
   const handleGenerate = () => generate({
     idea: inputs.idea,
@@ -81,25 +67,11 @@ export default function VideoPage() {
     <>
       <Topbar title="Video Script Generator" sub="Turn one idea into a 45–60 second script" />
       <div className="px-8 py-7 max-w-[1620px] w-full mx-auto pb-16">
+        <PlatformSwitcher idea={inputs.idea} />
         <div className="grid gap-5" style={{ gridTemplateColumns: "344px 1fr", alignItems: "start" }}>
-          {/* Left panel */}
           <Card className="p-5 sticky top-[88px]">
             <div className="text-[16px] font-semibold mb-4" style={{ color: "var(--text)" }}>Script Inputs</div>
-            <div className="text-[11px] font-semibold tracking-[0.12em] uppercase mb-2" style={{ color: "var(--text-3)" }}>Generate for</div>
-            <div className="flex gap-2 flex-wrap mb-5">
-              {PLATFORMS.map(({ id, label }) => (
-                <button key={id} onClick={() => togglePlat(id)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg cursor-pointer border transition-all text-[12.5px] font-medium"
-                  style={{
-                    background: platforms[id as keyof typeof platforms] ? "var(--gold-dim)" : "var(--surface-2)",
-                    borderColor: platforms[id as keyof typeof platforms] ? "var(--gold-line)" : "var(--line-2)",
-                    color: platforms[id as keyof typeof platforms] ? "var(--cream)" : "var(--text-2)",
-                  }}>
-                  {label}
-                </button>
-              ))}
-            </div>
-            <InputPanel values={inputs} onChange={set}
+            <InputPanel values={inputs} onChange={set} prefilled={prefilled ?? undefined}
               fields={["idea", "story", "audience", "lesson", "tone", "category", "philosophy", "cta", "business", "variations"]} />
             <Button variant="primary" block loading={isLoading} onClick={handleGenerate} className="mt-1.5">
               {isLoading ? "Generating…" : "Generate Script"}
@@ -107,7 +79,6 @@ export default function VideoPage() {
             {error && <p className="text-[12px] mt-2" style={{ color: "var(--danger)" }}>{error}</p>}
           </Card>
 
-          {/* Right panel */}
           {isLoading
             ? <GenLoading label="Writing your script…" />
             : !result

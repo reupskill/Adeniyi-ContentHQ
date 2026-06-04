@@ -1,9 +1,11 @@
 "use client"
 import { useState } from "react"
 import { Topbar } from "@/components/layout/Topbar"
-import { InputPanel, DEFAULT_INPUTS, GeneratorInputs } from "@/components/generators/InputPanel"
+import { InputPanel, GeneratorInputs } from "@/components/generators/InputPanel"
+import { PlatformSwitcher } from "@/components/generators/PlatformSwitcher"
 import { Button, Tabs, GenLoading, GenEmpty, Card } from "@/components/ui"
 import { useGenerate } from "@/hooks/useGenerate"
+import { useGeneratorInit } from "@/hooks/useGeneratorInit"
 import { useAppStore } from "@/store/useAppStore"
 
 const FORMATS = ["One-liner", "3-Tweet Thread", "5-Tweet Thread", "Founder Lesson", "Growth Lesson"]
@@ -16,7 +18,7 @@ const FORMAT_MAP: Record<string, string> = {
 }
 
 export default function TwitterPage() {
-  const [inputs, setInputs] = useState<GeneratorInputs>(DEFAULT_INPUTS)
+  const { inputs, setInputs, prefilled } = useGeneratorInit("twitter")
   const [format, setFormat] = useState("3-Tweet Thread")
   const [tweets, setTweets] = useState<string[]>([])
   const { showToast } = useAppStore()
@@ -36,13 +38,14 @@ export default function TwitterPage() {
     <>
       <Topbar title="X / Twitter Generator" sub="Sharp threads and one-liners" />
       <div className="px-8 py-7 max-w-[1620px] w-full mx-auto pb-16">
+        <PlatformSwitcher idea={inputs.idea} />
         <div className="mb-4">
           <Tabs options={FORMATS} value={format} onChange={setFormat} />
         </div>
         <div className="grid gap-5" style={{ gridTemplateColumns: "344px 1fr", alignItems: "start" }}>
           <Card className="p-5 sticky top-[88px]">
             <div className="text-[16px] font-semibold mb-4" style={{ color: "var(--text)" }}>Tweet Inputs</div>
-            <InputPanel values={inputs} onChange={set}
+            <InputPanel values={inputs} onChange={set} prefilled={prefilled ?? undefined}
               fields={["idea", "story", "tone", "category", "philosophy", "cta"]} />
             <Button variant="primary" block loading={isLoading} className="mt-1.5"
               onClick={() => generate({ ...inputs, format: FORMAT_MAP[format] })}>

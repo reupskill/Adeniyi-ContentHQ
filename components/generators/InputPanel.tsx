@@ -21,6 +21,13 @@ export const DEFAULT_INPUTS = {
 
 export type GeneratorInputs = typeof DEFAULT_INPUTS
 
+export const PLATFORM_DEFAULTS: Record<string, GeneratorInputs> = {
+  video:     { ...DEFAULT_INPUTS, tone: "Conversational",  category: "Mindset",    philosophy: "Stoicism",              cta: "Reflection question" },
+  linkedin:  { ...DEFAULT_INPUTS, tone: "Storytelling",    category: "Leadership", philosophy: "Naval / leverage",      cta: "Reflection question" },
+  twitter:   { ...DEFAULT_INPUTS, tone: "Direct",          category: "Leadership", philosophy: "None",                  cta: "Comment prompt" },
+  substack:  { ...DEFAULT_INPUTS, tone: "Philosophical",   category: "Philosophy", philosophy: "Naval / leverage",      cta: "Subscribe" },
+}
+
 interface Props {
   values: GeneratorInputs
   onChange: (k: keyof GeneratorInputs, v: string | number) => void
