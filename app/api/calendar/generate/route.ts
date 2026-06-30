@@ -98,13 +98,28 @@ export async function POST(req: Request) {
 
     const db = createServerClient()
 
-    // Upsert calendar rows
+    // Delete existing rows for this month, then insert fresh ones
+    // (avoids needing a unique constraint on calendar_date for upsert)
+    const { error: deleteError } = await db
+      .from("content_calendar")
+      .delete()
+      .gte("calendar_date", `${targetMonth}-01`)
+      .lte("calendar_date", `${targetMonth}-31`)
+
+    if (deleteError) {
+      console.error("[calendar/generate] delete error:", deleteError)
+      return NextResponse.json({ error: deleteError.message || "Failed to clear existing calendar" }, { status: 500 })
+    }
+
     const { data: calData, error: dbError } = await db
       .from("content_calendar")
-      .upsert(rows, { onConflict: "calendar_date" })
+      .insert(rows)
       .select()
 
-    if (dbError) throw dbError
+    if (dbError) {
+      console.error("[calendar/generate] insert error:", dbError)
+      return NextResponse.json({ error: dbError.message || "Failed to save calendar" }, { status: 500 })
+    }
 
     // Auto-save ideas that don't yet have a linked content item
     const calRows = calData || []
@@ -143,6 +158,7 @@ export async function POST(req: Request) {
     return NextResponse.json(calRows.map(mapDay))
   } catch (e) {
     console.error("[calendar/generate]", e)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    const msg = e instanceof Error ? e.message : "Internal server error"
+    return NextResponse.json({ error: msg }, { status: 500 })
   }
 }

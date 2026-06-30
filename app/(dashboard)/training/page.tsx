@@ -37,6 +37,7 @@ export default function TrainingPage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [imageBase64, setImageBase64] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
   // Examples list state
@@ -76,6 +77,7 @@ export default function TrainingPage() {
     if (inputMode === "text" && !text.trim()) { showToast("Paste your content first", "error"); return }
     if (inputMode === "screenshot" && !imageBase64) { showToast("Upload a screenshot first", "error"); return }
     setSaving(true)
+    setSaveError(null)
     try {
       const res = await fetch("/api/training", {
         method: "POST",
@@ -89,11 +91,18 @@ export default function TrainingPage() {
         }),
       })
       const data = await res.json()
-      if (!res.ok) { showToast(data.error || "Failed to save", "error"); return }
+      if (!res.ok) {
+        const msg = data.error || "Failed to save"
+        setSaveError(msg)
+        return
+      }
       showToast("Saved as training example", "ok")
+      setSaveError(null)
       setText(""); setNotes(""); setImagePreview(null); setImageBase64(null)
       if (activeTab === "My Examples") loadExamples()
-    } catch { showToast("Failed to save", "error") }
+    } catch (e: any) {
+      setSaveError(e?.message || "Network error — could not reach server")
+    }
     finally { setSaving(false) }
   }
 
@@ -280,6 +289,12 @@ export default function TrainingPage() {
                 />
               </div>
 
+              {saveError && (
+                <div className="mb-3 px-3 py-2.5 rounded-xl text-[12.5px] leading-relaxed"
+                  style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.25)", color: "#f87171" }}>
+                  <strong>Error:</strong> {saveError}
+                </div>
+              )}
               <Button variant="primary" loading={saving} onClick={handleSave}
                 disabled={(inputMode === "text" && !text.trim()) || (inputMode === "screenshot" && !imageBase64)}>
                 {saving ? (inputMode === "screenshot" ? "Extracting text…" : "Saving…") : "Save as Training Example"}
