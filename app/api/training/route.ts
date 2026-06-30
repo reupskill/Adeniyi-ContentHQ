@@ -74,14 +74,22 @@ export async function POST(req: Request) {
 
     if (!content) return NextResponse.json({ error: "Content is required" }, { status: 400 })
 
+    // Map platform to default category (same values generators use)
+    const PLATFORM_CATEGORY: Record<string, string> = {
+      LinkedIn: "Leadership", Video: "Mindset", Substack: "Philosophy",
+      X: "Leadership", Newsletter: "Leadership",
+    }
+    const resolvedPlatform = platform || "LinkedIn"
+    const resolvedCategory = PLATFORM_CATEGORY[resolvedPlatform] || "Leadership"
+
     const db = createServerClient()
     const { data: saved, error: dbError } = await db
       .from("content_items")
       .insert({
         title: extractedTitle.slice(0, 120),
-        platform: platform || "LinkedIn",
-        category: "Training",
-        status: "Published",
+        platform: resolvedPlatform,
+        category: resolvedCategory,
+        status: "Draft",
         content,
         raw_inputs: { source: "my-writing", notes },
         metadata: { isTrainingExample: true, addedAt: new Date().toISOString() },

@@ -21,34 +21,30 @@ function renderLine(line: string, i: number): React.ReactNode {
   if (!line.trim()) return <div key={i} className="h-1.5" />
   if (line.trim() === "---") return <hr key={i} className="my-4 border-0 border-t" style={{ borderColor: "var(--line-2)" }} />
 
-  // Story header: skip — rendered by StoryBlock
-  if (/^\*\*Story \d+:.*\*\*$/.test(line.trim())) return null
+  // Case Study header: skip — rendered by CaseStudyBlock
+  if (/^\*\*Case Study \d+:.*\*\*$/.test(line.trim())) return null
 
-  if (/^\*\*.*\*\*$/.test(line.trim())) {
-    return (
-      <p key={i} className="text-[13.5px] font-semibold mt-3 mb-1" style={{ color: "var(--text)" }}>
-        {line.trim().slice(2, -2)}
-      </p>
-    )
-  }
-
-  const searchMatch = line.match(/^[-*]\s*\*?Search:\*?\s*(.+)/)
+  // "Read more" / Search link — renders prominently as a source reference
+  const searchMatch = line.match(/^[-*]?\s*\*?\*?Search:\*?\*?\s*(.+)/)
   if (searchMatch) {
+    const query = searchMatch[1].trim()
     return (
-      <div key={i} className="flex gap-2.5 my-0.5 items-center">
-        <span style={{ color: "var(--gold)", flexShrink: 0 }}>·</span>
-        <span className="text-[12.5px]" style={{ color: "var(--text-3)" }}>Search:</span>
-        <a href={`https://www.google.com/search?q=${encodeURIComponent(searchMatch[1])}`}
+      <div key={i} className="my-2">
+        <a href={`https://www.google.com/search?q=${encodeURIComponent(query)}`}
           target="_blank" rel="noopener noreferrer"
-          className="text-[12.5px] underline decoration-dotted transition-colors"
-          style={{ color: "var(--linkedin)" }}>
-          {searchMatch[1]} ↗
+          className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3 py-1.5 rounded-lg transition-colors no-underline"
+          style={{ background: "rgba(10,102,194,0.12)", color: "var(--linkedin)", border: "1px solid rgba(10,102,194,0.2)" }}>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+            <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+          </svg>
+          Read full story ↗
         </a>
       </div>
     )
   }
 
-  const pubMatch = line.match(/^[-*]\s*\*?Publication:\*?\s*(.+)/)
+  const pubMatch = line.match(/^[-*]?\s*\*?\*?Publication:\*?\*?\s*(.+)/)
   if (pubMatch) {
     return (
       <div key={i} className="flex gap-2 my-0.5 flex-wrap items-center">
@@ -59,12 +55,35 @@ function renderLine(line: string, i: number): React.ReactNode {
     )
   }
 
+  const dateMatch = line.match(/^[-*]?\s*\*?\*?Date:\*?\*?\s*(.+)/)
+  if (dateMatch) {
+    return (
+      <div key={i} className="flex gap-2 my-0.5 flex-wrap items-center">
+        <span style={{ color: "var(--gold)", flexShrink: 0 }}>·</span>
+        <span className="text-[11.5px]" style={{ color: "var(--text-3)" }}>{dateMatch[1]}</span>
+      </div>
+    )
+  }
+
+  if (/^\*\*.*\*\*$/.test(line.trim())) {
+    return (
+      <p key={i} className="text-[13.5px] font-semibold mt-3 mb-1" style={{ color: "var(--text)" }}>
+        {line.trim().slice(2, -2)}
+      </p>
+    )
+  }
+
   const labelMatch = line.match(/^[-*]?\s*\*\*([^*]+):\*\*\s*(.*)/)
   if (labelMatch) {
+    const isMyTake = labelMatch[1].toLowerCase().includes("my take")
     return (
-      <div key={i} className="flex gap-2 my-1 flex-wrap">
-        <span className="text-[12px] font-semibold flex-shrink-0" style={{ color: "var(--gold)" }}>{labelMatch[1]}:</span>
-        <span className="text-[13px]" style={{ color: "var(--text-2)" }}>{renderInline(labelMatch[2])}</span>
+      <div key={i} className="flex gap-2 my-1.5 flex-wrap">
+        <span className="text-[12px] font-semibold flex-shrink-0"
+          style={{ color: isMyTake ? "var(--gold)" : "var(--gold)" }}>{labelMatch[1]}:</span>
+        <span className="text-[13px] leading-relaxed"
+          style={{ color: isMyTake ? "var(--cream)" : "var(--text-2)", fontStyle: isMyTake ? "italic" : "normal" }}>
+          {renderInline(labelMatch[2])}
+        </span>
       </div>
     )
   }
@@ -96,27 +115,29 @@ function renderLine(line: string, i: number): React.ReactNode {
   )
 }
 
-// ─── Story block parsing ──────────────────────────────────────────────────────
+// ─── Case study block parsing ─────────────────────────────────────────────────
 
-function parseStoryBlocks(body: string): Array<{ num: string; headline: string; fullBlock: string }> {
+function parseCaseStudyBlocks(body: string): Array<{ num: string; headline: string; fullBlock: string }> {
   const lines = body.split("\n")
   const blocks: Array<{ num: string; headline: string; lines: string[] }> = []
   let current: { num: string; headline: string; lines: string[] } | null = null
 
   for (const line of lines) {
-    const match = line.trim().match(/^\*\*Story (\d+): (.+)\*\*$/)
+    // Match "**Case Study N: Company — description**" or "**Case Study N: Company**"
+    const match = line.trim().match(/^\*\*Case Study (\d+): (.+)\*\*$/)
     if (match) {
       if (current) blocks.push(current)
       current = { num: match[1], headline: match[2], lines: [line] }
     } else if (current) {
-      current.lines.push(line)
+      if (line.trim() === "---") { blocks.push(current); current = null }
+      else current.lines.push(line)
     }
   }
   if (current) blocks.push(current)
   return blocks.map((b) => ({ num: b.num, headline: b.headline, fullBlock: b.lines.join("\n") }))
 }
 
-function StoryBlock({
+function CaseStudyBlock({
   num, headline, fullBlock, onSave, onNewsletter,
 }: {
   num: string
@@ -126,16 +147,34 @@ function StoryBlock({
   onNewsletter: (headline: string, storyBody: string) => void
 }) {
   const bodyLines = fullBlock.split("\n").slice(1)
+  // Extract search query for the prominent "Read more" button
+  const searchLine = bodyLines.find((l) => /\*?\*?Search:\*?\*?/.test(l))
+  const searchQuery = searchLine?.match(/Search:\*?\*?\s*(.+)/)?.[1]?.trim()
+
   return (
     <div className="mb-5 pb-5" style={{ borderBottom: "1px solid var(--line)" }}>
       <div className="flex items-start justify-between gap-3 mb-3">
-        <p className="text-[14px] font-semibold leading-snug flex-1" style={{ color: "var(--text)" }}>
-          <span className="text-[11px] font-semibold mr-2 px-1.5 py-0.5 rounded"
-            style={{ background: "var(--gold-dim)", color: "var(--gold)" }}>
-            #{num}
-          </span>
-          {headline}
-        </p>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start gap-2 mb-1.5">
+            <span className="text-[11px] font-semibold px-1.5 py-0.5 rounded flex-shrink-0 mt-0.5"
+              style={{ background: "var(--gold-dim)", color: "var(--gold)" }}>
+              #{num}
+            </span>
+            <p className="text-[14px] font-semibold leading-snug" style={{ color: "var(--text)" }}>{headline}</p>
+          </div>
+          {searchQuery && (
+            <a href={`https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`}
+              target="_blank" rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-[11.5px] font-semibold px-2.5 py-1 rounded-lg no-underline transition-colors mb-2"
+              style={{ background: "rgba(10,102,194,0.10)", color: "var(--linkedin)", border: "1px solid rgba(10,102,194,0.18)" }}>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+              </svg>
+              Read the full story ↗
+            </a>
+          )}
+        </div>
         <div className="flex gap-2 flex-shrink-0">
           <button
             onClick={() => onSave(headline, fullBlock)}
@@ -176,16 +215,17 @@ function BriefSection({
 }) {
   const num = title.match(/^(\d+)/)?.[1] || (title.startsWith("Today") ? "Today" : "")
   const color = SECTION_COLORS[num] || "var(--text-3)"
-  const isStories = num === "1"
+  // Section 2 is "The Evidence: 5 Case Studies"
+  const isCaseStudies = num === "2"
 
   return (
     <Card className="p-5 mb-4" style={{ borderLeft: `3px solid ${color}`, borderRadius: "0 12px 12px 0" }}>
       <div className="text-[11px] font-semibold tracking-[0.13em] uppercase mb-4" style={{ color }}>
         {title.replace(/^\d+\.\s*/, "")}
       </div>
-      {isStories && onSaveStory && onWriteNewsletter ? (
-        parseStoryBlocks(body).map((block) => (
-          <StoryBlock
+      {isCaseStudies && onSaveStory && onWriteNewsletter ? (
+        parseCaseStudyBlocks(body).map((block) => (
+          <CaseStudyBlock
             key={block.num}
             num={block.num}
             headline={block.headline}

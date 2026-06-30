@@ -25,7 +25,7 @@ export function useCalendar(initialMonth?: string) {
 
   useEffect(() => { fetchCalendar() }, [fetchCalendar])
 
-  const generatePlan = useCallback(async () => {
+  const generatePlan = useCallback(async (): Promise<boolean> => {
     setIsLoading(true)
     try {
       const res = await fetch("/api/calendar/generate", {
@@ -33,11 +33,13 @@ export function useCalendar(initialMonth?: string) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ month }),
       })
-      if (!res.ok) throw new Error("Failed to generate plan")
       const data = await res.json()
+      if (!res.ok) throw new Error(data.error || "Failed to generate plan")
       setDays(data)
+      return true
     } catch (e) {
       console.error(e)
+      throw e
     } finally {
       setIsLoading(false)
     }

@@ -52,8 +52,12 @@ export default function CalendarPage() {
   const next = () => { if (month === 11) { setYear(y => y + 1); setMonth(0) } else setMonth(m => m + 1) }
 
   const handleGenerate = async () => {
-    await generatePlan()
-    showToast("30-day plan generated", "ok")
+    try {
+      await generatePlan()
+      showToast("30-day plan generated", "ok")
+    } catch (e: any) {
+      showToast(e?.message || "Failed to generate plan", "error")
+    }
   }
 
   return (
