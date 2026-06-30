@@ -83,6 +83,7 @@ export default function TrainingPage() {
         body: JSON.stringify({
           text: inputMode === "text" ? text : undefined,
           imageBase64: inputMode === "screenshot" ? imageBase64 : undefined,
+          imageDataUrl: inputMode === "screenshot" ? imagePreview : undefined,
           platform,
           notes,
         }),

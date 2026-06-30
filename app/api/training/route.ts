@@ -40,6 +40,13 @@ export async function POST(req: Request) {
 
     // If image provided, use Claude Vision to extract and analyse it
     if (imageBase64 && !content) {
+      // Detect actual media type from the original data URL sent by client
+      const rawDataUrl = body.imageDataUrl as string | undefined
+      let mediaType: "image/jpeg" | "image/png" | "image/webp" | "image/gif" = "image/jpeg"
+      if (rawDataUrl?.startsWith("data:image/png")) mediaType = "image/png"
+      else if (rawDataUrl?.startsWith("data:image/webp")) mediaType = "image/webp"
+      else if (rawDataUrl?.startsWith("data:image/gif")) mediaType = "image/gif"
+
       const response = await anthropic.messages.create({
         model: CLAUDE_MODEL,
         max_tokens: 1500,
@@ -48,7 +55,7 @@ export async function POST(req: Request) {
           content: [
             {
               type: "image",
-              source: { type: "base64", media_type: "image/jpeg", data: imageBase64 },
+              source: { type: "base64", media_type: mediaType, data: imageBase64 },
             },
             {
               type: "text",
@@ -82,10 +89,14 @@ export async function POST(req: Request) {
       .select("id")
       .single()
 
-    if (dbError) throw dbError
+    if (dbError) {
+      console.error("[training POST] DB error:", dbError)
+      return NextResponse.json({ error: dbError.message || "Database error" }, { status: 500 })
+    }
     return NextResponse.json({ id: saved?.id, success: true })
   } catch (e) {
     console.error("[training POST]", e)
-    return NextResponse.json({ error: "Failed to save" }, { status: 500 })
+    const msg = e instanceof Error ? e.message : "Failed to save"
+    return NextResponse.json({ error: msg }, { status: 500 })
   }
 }

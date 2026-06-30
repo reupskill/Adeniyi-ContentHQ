@@ -40,6 +40,8 @@ export default function BankPage() {
   const [search, setSearch] = useState("")
   const [openMenu, setOpenMenu] = useState<string | null>(null)
   const [preview, setPreview] = useState<ContentItem | null>(null)
+  const [recovering, setRecovering] = useState(false)
+  const [recoverCount, setRecoverCount] = useState<number | null>(null)
   const { showToast } = useAppStore()
 
   const importRef = useRef<HTMLInputElement>(null)
@@ -79,6 +81,28 @@ export default function BankPage() {
   const handleDelete = async (id: string) => {
     try { await deleteItem(id); showToast("Item deleted") }
     catch { showToast("Failed to delete", "error") }
+  }
+
+  const checkRecoverable = async () => {
+    const res = await fetch("/api/content/recover")
+    const data = await res.json()
+    setRecoverCount(data.recoverable || 0)
+  }
+
+  const handleRecover = async () => {
+    setRecovering(true)
+    try {
+      const res = await fetch("/api/content/recover", { method: "POST" })
+      const data = await res.json()
+      if (res.ok) {
+        showToast(`Restored ${data.restored} item${data.restored !== 1 ? "s" : ""}`, "ok")
+        setRecoverCount(null)
+        refresh()
+      } else {
+        showToast(data.error || "Recovery failed", "error")
+      }
+    } catch { showToast("Recovery failed", "error") }
+    finally { setRecovering(false) }
   }
 
   const handleTrainingToggle = async (item: ContentItem) => {
@@ -133,7 +157,18 @@ export default function BankPage() {
               </div>
               <p className="font-serif text-[19px] mb-2" style={{ color: "var(--text)" }}>No content here yet</p>
               <p className="text-[13px] mb-5" style={{ color: "var(--text-3)" }}>Generate your first piece and it&apos;ll land right here.</p>
-              <Link href="/video"><Button variant="primary">Create your first content</Button></Link>
+              <div className="flex gap-3 justify-center flex-wrap">
+                <Link href="/video"><Button variant="primary">Create your first content</Button></Link>
+                {recoverCount === null ? (
+                  <Button variant="secondary" onClick={checkRecoverable}>Check for deleted items</Button>
+                ) : recoverCount > 0 ? (
+                  <Button variant="secondary" loading={recovering} onClick={handleRecover}>
+                    Restore {recoverCount} deleted item{recoverCount !== 1 ? "s" : ""}
+                  </Button>
+                ) : (
+                  <span className="text-[13px] self-center" style={{ color: "var(--text-3)" }}>No deleted items found</span>
+                )}
+              </div>
             </div>
           </Card>
         ) : (

@@ -39,10 +39,16 @@ export async function GET(req: Request) {
   }
 }
 
-export async function DELETE() {
+export async function DELETE(req: Request) {
   try {
     const { error } = await requireAuth()
     if (error) return error
+
+    const { searchParams } = new URL(req.url)
+    if (searchParams.get("confirm") !== "all") {
+      return NextResponse.json({ error: "Pass ?confirm=all to bulk delete" }, { status: 400 })
+    }
+
     const db = createServerClient()
     const { error: dbError } = await db
       .from("content_items")
