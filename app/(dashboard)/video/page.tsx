@@ -72,7 +72,7 @@ export default function VideoPage() {
           <Card className="p-5 sticky top-[88px]">
             <div className="text-[16px] font-semibold mb-4" style={{ color: "var(--text)" }}>Script Inputs</div>
             <InputPanel values={inputs} onChange={set} prefilled={prefilled ?? undefined}
-              fields={["idea", "story", "audience", "lesson", "tone", "category", "philosophy", "cta", "business", "variations"]} />
+              fields={["idea", "story", "audience", "lesson", "business", "variations"]} />
             <Button variant="primary" block loading={isLoading} onClick={handleGenerate} className="mt-1.5">
               {isLoading ? "Generating…" : "Generate Script"}
             </Button>

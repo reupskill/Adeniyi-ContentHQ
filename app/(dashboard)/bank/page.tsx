@@ -81,6 +81,19 @@ export default function BankPage() {
     catch { showToast("Failed to delete", "error") }
   }
 
+  const handleTrainingToggle = async (item: ContentItem) => {
+    const isNow = !item.metadata?.isTrainingExample
+    try {
+      const res = await fetch(`/api/content/${item.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ metadata: { ...item.metadata, isTrainingExample: isNow } }),
+      })
+      if (res.ok) { showToast(isNow ? "Added to training examples ⭐" : "Removed from training", "ok"); refresh() }
+      else showToast("Failed to update", "error")
+    } catch { showToast("Failed to update", "error") }
+  }
+
   return (
     <>
       <Topbar title="Content Bank" sub="Your personal content library" />
@@ -164,6 +177,17 @@ export default function BankPage() {
                   <div className="flex gap-1">
                     <button onClick={() => setPreview(item)} className="p-1.5 rounded-md bg-transparent border-none cursor-pointer text-[var(--text-3)] hover:text-[var(--text)] hover:bg-[rgba(255,255,255,0.05)] transition-colors" title="Preview">
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
+                    <button
+                      onClick={() => handleTrainingToggle(item)}
+                      className="p-1.5 rounded-md bg-transparent border-none cursor-pointer hover:bg-[rgba(255,255,255,0.05)] transition-colors"
+                      title={item.metadata?.isTrainingExample ? "Remove from training examples" : "Mark as training example"}
+                      style={{ color: item.metadata?.isTrainingExample ? "var(--gold)" : "var(--text-3)" }}>
+                      <svg width="15" height="15" viewBox="0 0 24 24"
+                        fill={item.metadata?.isTrainingExample ? "var(--gold)" : "none"}
+                        stroke="currentColor" strokeWidth="2">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                      </svg>
                     </button>
                     <button onClick={() => navigator.clipboard.writeText(item.content).then(() => showToast("Copied!", "ok"))} className="p-1.5 rounded-md bg-transparent border-none cursor-pointer text-[var(--text-3)] hover:text-[var(--text)] hover:bg-[rgba(255,255,255,0.05)] transition-colors" title="Copy">
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>

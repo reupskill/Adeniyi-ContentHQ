@@ -87,7 +87,8 @@ export default function SubstackPage() {
         <div className="grid gap-5" style={{ gridTemplateColumns: "344px 1fr", alignItems: "start" }}>
           <Card className="p-5 sticky top-[88px]">
             <div className="text-[16px] font-semibold mb-4" style={{ color: "var(--text)" }}>Essay Inputs</div>
-            <InputPanel values={inputs} onChange={set} prefilled={prefilled ?? undefined} />
+            <InputPanel values={inputs} onChange={set} prefilled={prefilled ?? undefined}
+              fields={["idea", "story", "audience", "lesson", "business"]} />
             <Button variant="primary" block loading={streaming} className="mt-1.5" onClick={handleGenerate}>
               {streaming ? "Writing essay…" : "Generate Essay"}
             </Button>

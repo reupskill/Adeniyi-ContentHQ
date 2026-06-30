@@ -34,7 +34,8 @@ export default function LinkedInPage() {
         <div className="grid gap-5" style={{ gridTemplateColumns: "344px 1fr", alignItems: "start" }}>
           <Card className="p-5 sticky top-[88px]">
             <div className="text-[16px] font-semibold mb-4" style={{ color: "var(--text)" }}>Post Inputs</div>
-            <InputPanel values={inputs} onChange={set} prefilled={prefilled ?? undefined} />
+            <InputPanel values={inputs} onChange={set} prefilled={prefilled ?? undefined}
+              fields={["idea", "story", "audience", "lesson", "business", "variations"]} />
             <Button variant="primary" block loading={isLoading} className="mt-1.5"
               onClick={() => generate({ ...inputs })}>
               {isLoading ? "Generating…" : "Generate Post"}

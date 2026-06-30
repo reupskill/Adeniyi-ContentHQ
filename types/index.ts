@@ -12,7 +12,7 @@ export interface ContentItem {
   status: ContentStatus
   content: string
   rawInputs?: Record<string, unknown>
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown> & { isTrainingExample?: boolean }
   scoreOverall?: number
   scoreHook?: number
   scoreClarity?: number
