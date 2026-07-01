@@ -21,13 +21,37 @@ const SECTIONS = [
   { key: "newsletterCta",        label: "NEWSLETTER CTA",        color: "var(--gold)" },
 ]
 
+function useSaveAsExample(showToast: (msg: string, type: "ok" | "error") => void) {
+  const [saved, setSaved] = useState(false)
+  const [saving, setSaving] = useState(false)
+
+  const saveAsExample = async (id: string) => {
+    if (saved || !id) return
+    setSaving(true)
+    try {
+      const res = await fetch(`/api/content/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ metadata: { isTrainingExample: true, addedAt: new Date().toISOString() } }),
+      })
+      if (res.ok) { setSaved(true); showToast("Saved as training example", "ok") }
+      else showToast("Failed to save as example", "error")
+    } catch { showToast("Failed to save as example", "error") }
+    finally { setSaving(false) }
+  }
+
+  return { saveAsExample, saved, saving }
+}
+
 export default function SubstackPage() {
   const { inputs, setInputs, prefilled } = useGeneratorInit("substack")
   const [streaming, setStreaming] = useState(false)
   const [streamText, setStreamText] = useState("")
   const [sections, setSections] = useState<Record<string, string> | null>(null)
   const [teaser, setTeaser] = useState<string>("")
+  const [contentId, setContentId] = useState<string | null>(null)
   const { showToast } = useAppStore()
+  const { saveAsExample, saved: exSaved, saving: exSaving } = useSaveAsExample(showToast)
   const abortRef = useRef<AbortController | null>(null)
 
   const set = (k: keyof GeneratorInputs, v: string | number) => setInputs((p) => ({ ...p, [k]: v }))
@@ -70,6 +94,7 @@ export default function SubstackPage() {
               const { teaser: t, ...rest } = allSections
               setSections(rest)
               if (t) setTeaser(t)
+              if (parsed.id) setContentId(parsed.id)
               showToast("Essay generated and saved", "ok")
             }
           } catch {}
@@ -122,7 +147,14 @@ export default function SubstackPage() {
                     </div>
                     <div className="flex gap-2">
                       <Button size="sm" variant="secondary" onClick={() => navigator.clipboard.writeText(streamText).then(() => showToast("Copied!", "ok"))}>Copy Full Draft</Button>
-                      <Button size="sm" variant="secondary" onClick={() => showToast("Saved to Content Bank", "ok")}>Save to Bank</Button>
+                      {contentId && (
+                        <Button size="sm" variant="secondary"
+                          loading={exSaving}
+                          disabled={exSaved}
+                          onClick={() => saveAsExample(contentId)}>
+                          {exSaved ? "⭐ Saved as Example" : "⭐ Save as Example"}
+                        </Button>
+                      )}
                     </div>
                   </Card>
                   {SECTIONS.map(({ key, label, color }, i) => {

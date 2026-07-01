@@ -23,6 +23,28 @@ interface ScriptOutput {
   }
 }
 
+function useSaveAsExample(showToast: (msg: string, type: "ok" | "error") => void) {
+  const [saved, setSaved] = useState(false)
+  const [saving, setSaving] = useState(false)
+
+  const saveAsExample = async (id: string) => {
+    if (saved || !id) return
+    setSaving(true)
+    try {
+      const res = await fetch(`/api/content/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ metadata: { isTrainingExample: true, addedAt: new Date().toISOString() } }),
+      })
+      if (res.ok) { setSaved(true); showToast("Saved as training example", "ok") }
+      else showToast("Failed to save as example", "error")
+    } catch { showToast("Failed to save as example", "error") }
+    finally { setSaving(false) }
+  }
+
+  return { saveAsExample, saved, saving }
+}
+
 const SECTION_LABELS: Record<string, string> = {
   hook: "HOOK",
   story: "STORY",
@@ -39,6 +61,7 @@ export default function VideoPage() {
   const { inputs, setInputs, prefilled } = useGeneratorInit("video")
   const [result, setResult] = useState<ScriptOutput | null>(null)
   const { showToast } = useAppStore()
+  const { saveAsExample, saved: exSaved, saving: exSaving } = useSaveAsExample(showToast)
   const { generate, isLoading, error } = useGenerate({
     endpoint: "/api/generate/video-script",
     onSuccess: (data) => {
@@ -90,9 +113,14 @@ export default function VideoPage() {
                       <span className="text-[11.5px] font-semibold px-2.5 py-0.5 rounded-full" style={{ color: "var(--video)", background: "var(--video-bg)" }}>Video</span>
                       <span className="text-[12.5px]" style={{ color: "var(--text-3)" }}>~48 sec · {Object.values(result.sections).join(" ").split(/\s+/).length} words</span>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 flex-wrap">
                       <Button size="sm" variant="ghost" onClick={() => { setResult(null); handleGenerate() }}>Regenerate</Button>
-                      <Button size="sm" variant="secondary" onClick={() => showToast("Saved to Content Bank", "ok")}>Save to Bank</Button>
+                      <Button size="sm" variant="secondary"
+                        loading={exSaving}
+                        disabled={exSaved}
+                        onClick={() => result && saveAsExample(result.id)}>
+                        {exSaved ? "⭐ Saved as Example" : "⭐ Save as Example"}
+                      </Button>
                     </div>
                   </Card>
                   {Object.entries(result.sections).map(([key, body], i) => body && (

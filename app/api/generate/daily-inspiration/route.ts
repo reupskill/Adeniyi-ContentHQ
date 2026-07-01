@@ -10,6 +10,26 @@ import { createServerClient } from "@/lib/supabase/server"
 import Anthropic from "@anthropic-ai/sdk"
 import type { ContentRiverOutput } from "@/types"
 
+export async function GET() {
+  try {
+    const { error } = await requireAuth()
+    if (error) return error
+
+    const db = createServerClient()
+    const { data, error: dbError } = await db
+      .from("daily_inspirations")
+      .select("id, created_at, inputs, content_ideas, video_hooks, linkedin_angles, x_post_ideas, substack_angles, story_prompts, philosophical_connections")
+      .order("created_at", { ascending: false })
+      .limit(30)
+
+    if (dbError) throw dbError
+    return NextResponse.json({ sessions: data || [] })
+  } catch (e) {
+    console.error("[content-river GET]", e)
+    return NextResponse.json({ error: "Failed to load history" }, { status: 500 })
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const { error } = await requireAuth()

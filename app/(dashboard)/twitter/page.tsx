@@ -17,15 +17,40 @@ const FORMAT_MAP: Record<string, string> = {
   "Growth Lesson": "growth",
 }
 
+function useSaveAsExample(showToast: (msg: string, type: "ok" | "error") => void) {
+  const [saved, setSaved] = useState(false)
+  const [saving, setSaving] = useState(false)
+
+  const saveAsExample = async (id: string) => {
+    if (saved || !id) return
+    setSaving(true)
+    try {
+      const res = await fetch(`/api/content/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ metadata: { isTrainingExample: true, addedAt: new Date().toISOString() } }),
+      })
+      if (res.ok) { setSaved(true); showToast("Saved as training example", "ok") }
+      else showToast("Failed to save as example", "error")
+    } catch { showToast("Failed to save as example", "error") }
+    finally { setSaving(false) }
+  }
+
+  return { saveAsExample, saved, saving }
+}
+
 export default function TwitterPage() {
   const { inputs, setInputs, prefilled } = useGeneratorInit("twitter")
   const [format, setFormat] = useState("3-Tweet Thread")
   const [tweets, setTweets] = useState<string[]>([])
+  const [contentId, setContentId] = useState<string | null>(null)
   const { showToast } = useAppStore()
+  const { saveAsExample, saved: exSaved, saving: exSaving } = useSaveAsExample(showToast)
   const { generate, isLoading, error } = useGenerate({
     endpoint: "/api/generate/twitter",
     onSuccess: (data: any) => {
       setTweets(data.tweets || [data.raw])
+      setContentId(data.id || null)
       showToast("Tweets generated", "ok")
     },
     onError: (e) => showToast(e, "error"),
@@ -88,9 +113,16 @@ export default function TwitterPage() {
                       </Card>
                     </div>
                   ))}
-                  <div className="flex gap-2 mt-2">
+                  <div className="flex gap-2 mt-2 flex-wrap">
                     <Button size="sm" variant="ghost" onClick={() => generate({ ...inputs, format: FORMAT_MAP[format] })}>Regenerate</Button>
-                    <Button size="sm" variant="secondary" onClick={() => showToast("Saved to Content Bank", "ok")}>Save to Bank</Button>
+                    {contentId && (
+                      <Button size="sm" variant="secondary"
+                        loading={exSaving}
+                        disabled={exSaved}
+                        onClick={() => saveAsExample(contentId)}>
+                        {exSaved ? "⭐ Saved as Example" : "⭐ Save as Example"}
+                      </Button>
+                    )}
                   </div>
                 </div>
               )}

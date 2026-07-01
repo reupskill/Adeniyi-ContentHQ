@@ -8,15 +8,40 @@ import { useGenerate } from "@/hooks/useGenerate"
 import { useGeneratorInit } from "@/hooks/useGeneratorInit"
 import { useAppStore } from "@/store/useAppStore"
 
+function useSaveAsExample(showToast: (msg: string, type: "ok" | "error") => void) {
+  const [saved, setSaved] = useState<Set<string>>(new Set())
+  const [saving, setSaving] = useState(false)
+
+  const saveAsExample = async (id: string) => {
+    if (saved.has(id) || !id) return
+    setSaving(true)
+    try {
+      const res = await fetch(`/api/content/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ metadata: { isTrainingExample: true, addedAt: new Date().toISOString() } }),
+      })
+      if (res.ok) { setSaved((s) => { const n = new Set(s); n.add(id); return n }); showToast("Saved as training example", "ok") }
+      else showToast("Failed to save as example", "error")
+    } catch { showToast("Failed to save as example", "error") }
+    finally { setSaving(false) }
+  }
+
+  return { saveAsExample, saved, saving }
+}
+
 export default function LinkedInPage() {
   const { inputs, setInputs, prefilled } = useGeneratorInit("linkedin")
   const [posts, setPosts] = useState<string[]>([])
+  const [postIds, setPostIds] = useState<string[]>([])
   const [activeTab, setActiveTab] = useState("Variation 1")
   const { showToast } = useAppStore()
+  const { saveAsExample, saved: exSaved, saving: exSaving } = useSaveAsExample(showToast)
   const { generate, isLoading, error } = useGenerate({
     endpoint: "/api/generate/linkedin",
     onSuccess: (data: any) => {
       setPosts(data.posts || [data.raw])
+      setPostIds(data.ids || [])
       setActiveTab("Variation 1")
       showToast("LinkedIn post generated", "ok")
     },
@@ -24,7 +49,9 @@ export default function LinkedInPage() {
   })
 
   const set = (k: keyof GeneratorInputs, v: string | number) => setInputs((p) => ({ ...p, [k]: v }))
-  const activePost = posts[parseInt(activeTab.split(" ")[1]) - 1] || ""
+  const activeIndex = parseInt(activeTab.split(" ")[1]) - 1
+  const activePost = posts[activeIndex] || ""
+  const activeId = postIds[activeIndex] || ""
 
   return (
     <>
@@ -64,10 +91,15 @@ export default function LinkedInPage() {
                     </div>
                     <div className="text-[14px] leading-relaxed whitespace-pre-wrap" style={{ color: "var(--cream)" }}>{activePost}</div>
                   </Card>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-wrap">
                     <Button size="sm" variant="ghost" onClick={() => generate({ ...inputs })}>Regenerate</Button>
                     <Button size="sm" variant="secondary" onClick={() => navigator.clipboard.writeText(activePost).then(() => showToast("Copied!", "ok"))}>Copy</Button>
-                    <Button size="sm" variant="secondary" onClick={() => showToast("Saved to Content Bank", "ok")}>Save to Bank</Button>
+                    <Button size="sm" variant="secondary"
+                      loading={exSaving}
+                      disabled={exSaved.has(activeId)}
+                      onClick={() => saveAsExample(activeId)}>
+                      {exSaved.has(activeId) ? "⭐ Saved as Example" : "⭐ Save as Example"}
+                    </Button>
                   </div>
                 </div>
               )}
