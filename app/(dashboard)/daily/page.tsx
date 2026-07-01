@@ -2,23 +2,12 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Topbar } from "@/components/layout/Topbar"
-import { Button, Field, Input, GenLoading, Card } from "@/components/ui"
+import { Button, Field, GenLoading, Card } from "@/components/ui"
 import { useGenerate } from "@/hooks/useGenerate"
 import { useAppStore } from "@/store/useAppStore"
-import type { DailyInspirationOutput } from "@/types"
+import type { ContentRiverOutput } from "@/types"
 
-const FIELDS: [string, string, string][] = [
-  ["recentTheme", "Recent Theme", "A thread running through your week"],
-  ["recentEvent", "Recent Event", "Something that actually happened"],
-  ["frustration", "A Frustration", "What's been grinding on you"],
-  ["mistake", "A Mistake", "A recent misstep & what it taught"],
-  ["belief", "A Belief", "Something you hold strongly"],
-  ["lesson", "A Lesson", "Hard-won wisdom"],
-  ["question", "A Question", "Something you're sitting with"],
-  ["onlineDisagreement", "An Online Disagreement", "A take you pushed back on"],
-  ["buildingLesson", "Lesson from Building", "From the work itself"],
-  ["currentStruggle", "Current Struggle", "What's genuinely hard right now"],
-]
+const PLATFORMS = ["LinkedIn", "Video", "Substack", "X", "Newsletter"]
 
 const PLATFORM_PATHS: Record<string, string> = {
   Video: "/video",
@@ -28,31 +17,30 @@ const PLATFORM_PATHS: Record<string, string> = {
   Newsletter: "/linkedin",
 }
 
-export default function DailyPage() {
-  const [vals, setVals] = useState<Record<string, string>>({})
-  const [output, setOutput] = useState<DailyInspirationOutput | null>(null)
+export default function ContentRiverPage() {
+  const [content, setContent] = useState("")
+  const [platform, setPlatform] = useState("LinkedIn")
+  const [output, setOutput] = useState<ContentRiverOutput | null>(null)
   const [saving, setSaving] = useState<Record<string, boolean>>({})
   const [saved, setSaved] = useState<Record<string, boolean>>({})
   const { showToast } = useAppStore()
   const router = useRouter()
+
   const { generate, isLoading, error } = useGenerate({
     endpoint: "/api/generate/daily-inspiration",
     onSuccess: (data) => {
-      setOutput(data as DailyInspirationOutput)
+      setOutput(data as ContentRiverOutput)
       setSaved({})
-      showToast("Content ideas generated", "ok")
+      showToast("Ideas generated", "ok")
     },
     onError: (e) => showToast(e, "error"),
   })
-
-  const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
-    setVals((v) => ({ ...v, [k]: e.target.value }))
 
   const goTo = (path: string, idea: string) => {
     router.push(`${path}?idea=${encodeURIComponent(idea)}`)
   }
 
-  const saveToBank = async (key: string, title: string, platform: string) => {
+  const saveToBank = async (key: string, title: string, plat: string) => {
     if (saved[key]) return
     setSaving((s) => ({ ...s, [key]: true }))
     try {
@@ -65,11 +53,11 @@ export default function DailyPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: title.slice(0, 120),
-          platform,
-          category: PLATFORM_CATEGORY[platform] || "Leadership",
+          platform: plat,
+          category: PLATFORM_CATEGORY[plat] || "Leadership",
           status: "Idea",
           content: title,
-          raw_inputs: { source: "daily-inspiration" },
+          raw_inputs: { source: "content-river" },
         }),
       })
       if (res.ok) {
@@ -85,12 +73,12 @@ export default function DailyPage() {
     }
   }
 
-  function SaveBtn({ id, label, platform }: { id: string; label: string; platform: string }) {
+  function SaveBtn({ id, label, plat }: { id: string; label: string; plat: string }) {
     const isSaved = saved[id]
     const isSaving = saving[id]
     return (
       <button
-        onClick={(e) => { e.stopPropagation(); saveToBank(id, label, platform) }}
+        onClick={(e) => { e.stopPropagation(); saveToBank(id, label, plat) }}
         disabled={isSaved || isSaving}
         className="flex-shrink-0 text-[11px] px-2 py-1 rounded-md border cursor-pointer transition-all"
         style={{
@@ -107,68 +95,96 @@ export default function DailyPage() {
 
   return (
     <>
-      <Topbar title="Daily Inspiration" sub="A day of life — a week of content" />
+      <Topbar title="Content River" sub="One piece of writing. Endless ideas." />
       <div className="px-8 py-7 max-w-[1100px] w-full mx-auto pb-16">
+
         <div className="text-center max-w-[620px] mx-auto mb-8">
-          <h1 className="font-serif text-[30px]" style={{ color: "var(--text)" }}>What&apos;s happening in your world today?</h1>
+          <h1 className="font-serif text-[30px]" style={{ color: "var(--text)" }}>Mine your existing writing for ideas</h1>
           <p className="text-[14.5px] mt-3 leading-relaxed" style={{ color: "var(--text-2)" }}>
-            Real content comes from real life. Drop in what you&apos;re thinking, feeling, and wrestling with — turn a single day into a week of ideas.
+            Paste a piece you&apos;ve already written. Get fresh angles, new takes, related topics, and platform-ready ideas — all branching from what you&apos;ve already said.
           </p>
         </div>
 
         <Card className="p-5 mb-6">
-          <div className="grid grid-cols-2 gap-x-5">
-            {FIELDS.map(([k, label, ph]) => (
-              <Field key={k} label={label}>
-                <Input value={vals[k] || ""} onChange={set(k)} placeholder={ph} />
-              </Field>
-            ))}
+          <div className="mb-4">
+            <p className="text-[13px] font-semibold mb-2" style={{ color: "var(--text-2)" }}>Original platform</p>
+            <div className="flex gap-2 flex-wrap">
+              {PLATFORMS.map((p) => (
+                <button key={p} onClick={() => setPlatform(p)}
+                  className="px-3 py-1.5 rounded-lg text-[12.5px] font-medium border cursor-pointer transition-all"
+                  style={{
+                    background: platform === p ? "var(--gold-dim)" : "var(--surface-2)",
+                    borderColor: platform === p ? "var(--gold-line)" : "var(--line-2)",
+                    color: platform === p ? "var(--gold)" : "var(--text-2)",
+                    fontFamily: "inherit",
+                  }}>{p}</button>
+              ))}
+            </div>
           </div>
-          <Button variant="primary" block loading={isLoading} className="mt-2"
-            onClick={() => generate(vals)}>
-            {isLoading ? "Generating a day of ideas…" : "Generate Content Ideas"}
+
+          <Field label="Paste your content">
+            <textarea
+              className="w-full rounded-xl text-[14px] leading-relaxed resize-none outline-none px-4 py-3"
+              style={{
+                background: "var(--surface-2)",
+                border: "1px solid var(--line-2)",
+                color: "var(--text)",
+                minHeight: 220,
+                fontFamily: "inherit",
+              }}
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="Paste a LinkedIn post, essay, video script, newsletter, or any piece you've written. The AI will find every angle, idea, and thread worth pulling on…"
+            />
+          </Field>
+
+          <Button variant="primary" block loading={isLoading} className="mt-1"
+            disabled={!content.trim()}
+            onClick={() => generate({ content, platform })}>
+            {isLoading ? "Mining for ideas…" : "Generate Ideas from This Content"}
           </Button>
           {error && <p className="text-[12px] mt-2" style={{ color: "var(--danger)" }}>{error}</p>}
         </Card>
 
-        {isLoading && <GenLoading label="Mining your inputs for ideas…" />}
+        {isLoading && <GenLoading label="Finding every thread worth pulling on…" />}
 
         {output && !isLoading && (
           <div className="fade-seq">
-            {/* Content Ideas */}
+
+            {/* Fresh Angles */}
             <Card className="p-5 mb-5">
               <div className="flex items-center justify-between mb-4">
-                <span className="text-[15px] font-semibold" style={{ color: "var(--text)" }}>10 Daily Content Ideas</span>
-                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ color: "var(--gold)", background: "var(--gold-dim)" }}>{output.contentIdeas.length}</span>
+                <div>
+                  <span className="text-[15px] font-semibold" style={{ color: "var(--text)" }}>10 Fresh Angles</span>
+                  <p className="text-[12px] mt-0.5" style={{ color: "var(--text-3)" }}>New ways to approach the same core theme — each one a complete new piece</p>
+                </div>
+                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ color: "var(--gold)", background: "var(--gold-dim)" }}>{output.freshAngles.length}</span>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                {output.contentIdeas.map((idea, i) => (
+                {output.freshAngles.map((angle, i) => (
                   <div key={i}
                     className="flex items-start gap-3 p-3.5 rounded-xl"
                     style={{ background: "var(--surface-2)", border: "1px solid var(--line)" }}>
                     <span className="font-serif text-[18px] flex-shrink-0 w-7 text-center mt-0.5" style={{ color: "var(--gold)" }}>{i + 1}</span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[13.5px] leading-snug mb-2.5" style={{ color: "var(--text)" }}>{idea}</p>
+                      <p className="text-[13.5px] leading-snug mb-2.5" style={{ color: "var(--text)" }}>{angle}</p>
                       <div className="flex gap-1.5 flex-wrap">
-                        <button
-                          onClick={() => goTo("/video", idea)}
-                          className="text-[11px] px-2 py-1 rounded-md border cursor-pointer transition-all"
-                          style={{ fontFamily: "inherit", background: "transparent", borderColor: "var(--video)", color: "var(--video)" }}>
-                          Video
-                        </button>
-                        <button
-                          onClick={() => goTo("/linkedin", idea)}
+                        <button onClick={() => goTo("/linkedin", angle)}
                           className="text-[11px] px-2 py-1 rounded-md border cursor-pointer transition-all"
                           style={{ fontFamily: "inherit", background: "transparent", borderColor: "var(--linkedin)", color: "var(--linkedin)" }}>
                           LinkedIn
                         </button>
-                        <button
-                          onClick={() => goTo("/substack", idea)}
+                        <button onClick={() => goTo("/video", angle)}
+                          className="text-[11px] px-2 py-1 rounded-md border cursor-pointer transition-all"
+                          style={{ fontFamily: "inherit", background: "transparent", borderColor: "var(--video)", color: "var(--video)" }}>
+                          Video
+                        </button>
+                        <button onClick={() => goTo("/substack", angle)}
                           className="text-[11px] px-2 py-1 rounded-md border cursor-pointer transition-all"
                           style={{ fontFamily: "inherit", background: "transparent", borderColor: "var(--substack)", color: "var(--substack)" }}>
                           Substack
                         </button>
-                        <SaveBtn id={`idea-${i}`} label={idea} platform="Video" />
+                        <SaveBtn id={`angle-${i}`} label={angle} plat={platform} />
                       </div>
                     </div>
                   </div>
@@ -177,18 +193,47 @@ export default function DailyPage() {
             </Card>
 
             <div className="grid grid-cols-2 gap-5">
+
+              {/* Pull Quotes */}
+              <Card className="p-5">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[15px] font-semibold" style={{ color: "var(--text)" }}>5 Pull Quotes</span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ color: "var(--gold)", background: "var(--gold-dim)" }}>5</span>
+                </div>
+                <p className="text-[12px] mb-4" style={{ color: "var(--text-3)" }}>Standalone lines that could work as posts on their own</p>
+                {output.pullQuotes.map((quote, i) => (
+                  <div key={i} className="py-3 border-b border-[var(--line)] last:border-b-0">
+                    <p className="text-[14px] leading-relaxed mb-2 font-serif" style={{ color: "var(--cream)" }}>&ldquo;{quote}&rdquo;</p>
+                    <div className="flex gap-2">
+                      <button onClick={() => goTo("/twitter", quote)}
+                        className="text-[11px] px-2 py-0.5 rounded border cursor-pointer"
+                        style={{ fontFamily: "inherit", background: "transparent", borderColor: "var(--text-3)", color: "var(--text-3)" }}>
+                        Post on X
+                      </button>
+                      <button onClick={() => goTo("/linkedin", quote)}
+                        className="text-[11px] px-2 py-0.5 rounded border cursor-pointer"
+                        style={{ fontFamily: "inherit", background: "transparent", borderColor: "var(--linkedin)", color: "var(--linkedin)" }}>
+                        LinkedIn
+                      </button>
+                      <SaveBtn id={`quote-${i}`} label={quote} plat="X" />
+                    </div>
+                  </div>
+                ))}
+              </Card>
+
               {/* Video Hooks */}
               <Card className="p-5">
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mb-1">
                   <span className="text-[15px] font-semibold" style={{ color: "var(--text)" }}>5 Video Hooks</span>
                   <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ color: "var(--gold)", background: "var(--gold-dim)" }}>5</span>
                 </div>
+                <p className="text-[12px] mb-4" style={{ color: "var(--text-3)" }}>Hooks for videos on this theme</p>
                 {output.videoHooks.map((hook, i) => (
                   <div key={i} className="py-3 border-b border-[var(--line)] last:border-b-0">
                     <p className="text-[14px] leading-relaxed mb-2" style={{ color: "var(--cream)" }}>&ldquo;{hook}&rdquo;</p>
                     <div className="flex gap-2">
                       <Button size="sm" variant="secondary" onClick={() => goTo("/video", hook)}>Use in Video</Button>
-                      <SaveBtn id={`hook-${i}`} label={hook} platform="Video" />
+                      <SaveBtn id={`hook-${i}`} label={hook} plat="Video" />
                     </div>
                   </div>
                 ))}
@@ -196,10 +241,11 @@ export default function DailyPage() {
 
               {/* LinkedIn Angles */}
               <Card className="p-5">
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mb-1">
                   <span className="text-[15px] font-semibold" style={{ color: "var(--text)" }}>5 LinkedIn Angles</span>
                   <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ color: "var(--gold)", background: "var(--gold-dim)" }}>5</span>
                 </div>
+                <p className="text-[12px] mb-4" style={{ color: "var(--text-3)" }}>Post angles derived from this content</p>
                 {output.linkedinAngles.map((angle, i) => (
                   <div key={i} className="flex items-start gap-2.5 py-2.5 border-b border-[var(--line)] last:border-b-0">
                     <span className="w-1.5 h-1.5 rounded-full mt-2 flex-shrink-0" style={{ background: "var(--gold)" }} />
@@ -211,7 +257,7 @@ export default function DailyPage() {
                           style={{ fontFamily: "inherit", background: "transparent", borderColor: "var(--linkedin)", color: "var(--linkedin)" }}>
                           Write it
                         </button>
-                        <SaveBtn id={`li-${i}`} label={angle} platform="LinkedIn" />
+                        <SaveBtn id={`li-${i}`} label={angle} plat="LinkedIn" />
                       </div>
                     </div>
                   </div>
@@ -220,10 +266,11 @@ export default function DailyPage() {
 
               {/* X Post Ideas */}
               <Card className="p-5">
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mb-1">
                   <span className="text-[15px] font-semibold" style={{ color: "var(--text)" }}>5 X Post Ideas</span>
                   <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ color: "var(--gold)", background: "var(--gold-dim)" }}>5</span>
                 </div>
+                <p className="text-[12px] mb-4" style={{ color: "var(--text-3)" }}>Short, punchy takes inspired by this content</p>
                 {output.xPostIdeas.map((idea, i) => (
                   <div key={i} className="flex items-start gap-2.5 py-2.5 border-b border-[var(--line)] last:border-b-0">
                     <span className="w-1.5 h-1.5 rounded-full mt-2 flex-shrink-0" style={{ background: "var(--gold)" }} />
@@ -235,7 +282,7 @@ export default function DailyPage() {
                           style={{ fontFamily: "inherit", background: "transparent", borderColor: "var(--text-3)", color: "var(--text-3)" }}>
                           Write it
                         </button>
-                        <SaveBtn id={`x-${i}`} label={idea} platform="X" />
+                        <SaveBtn id={`x-${i}`} label={idea} plat="X" />
                       </div>
                     </div>
                   </div>
@@ -244,10 +291,11 @@ export default function DailyPage() {
 
               {/* Substack Angles */}
               <Card className="p-5">
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mb-1">
                   <span className="text-[15px] font-semibold" style={{ color: "var(--text)" }}>3 Substack Essay Angles</span>
                   <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ color: "var(--gold)", background: "var(--gold-dim)" }}>3</span>
                 </div>
+                <p className="text-[12px] mb-4" style={{ color: "var(--text-3)" }}>Deeper ideas worth expanding into full essays</p>
                 {output.substackAngles.map((angle, i) => (
                   <div key={i} className="flex items-start gap-2.5 py-2.5 border-b border-[var(--line)] last:border-b-0">
                     <span className="w-1.5 h-1.5 rounded-full mt-2 flex-shrink-0" style={{ background: "var(--gold)" }} />
@@ -259,85 +307,44 @@ export default function DailyPage() {
                           style={{ fontFamily: "inherit", background: "transparent", borderColor: "var(--substack)", color: "var(--substack)" }}>
                           Write it
                         </button>
-                        <SaveBtn id={`ss-${i}`} label={angle} platform="Substack" />
+                        <SaveBtn id={`ss-${i}`} label={angle} plat="Substack" />
                       </div>
                     </div>
                   </div>
                 ))}
               </Card>
 
-              {/* Story Prompts */}
+              {/* Related Topics */}
               <Card className="p-5">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-[15px] font-semibold" style={{ color: "var(--text)" }}>3 Personal Story Prompts</span>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[15px] font-semibold" style={{ color: "var(--text)" }}>3 Related Topics</span>
                   <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ color: "var(--gold)", background: "var(--gold-dim)" }}>3</span>
                 </div>
-                {output.storyPrompts.map((prompt, i) => (
+                <p className="text-[12px] mb-4" style={{ color: "var(--text-3)" }}>Adjacent ideas this content touches on — worth their own pieces</p>
+                {output.relatedTopics.map((topic, i) => (
                   <div key={i} className="flex items-start gap-2.5 py-2.5 border-b border-[var(--line)] last:border-b-0">
                     <span className="w-1.5 h-1.5 rounded-full mt-2 flex-shrink-0" style={{ background: "var(--gold)" }} />
                     <div className="flex-1 min-w-0">
-                      <p className="text-[13.5px] leading-relaxed mb-1.5" style={{ color: "var(--text-2)" }}>{prompt}</p>
+                      <p className="text-[13.5px] leading-relaxed mb-1.5" style={{ color: "var(--text-2)" }}>{topic}</p>
                       <div className="flex gap-1.5">
-                        <button onClick={() => goTo("/video", prompt)}
+                        <button onClick={() => goTo("/linkedin", topic)}
                           className="text-[11px] px-2 py-0.5 rounded border cursor-pointer"
-                          style={{ fontFamily: "inherit", background: "transparent", borderColor: "var(--video)", color: "var(--video)" }}>
-                          Write it
+                          style={{ fontFamily: "inherit", background: "transparent", borderColor: "var(--linkedin)", color: "var(--linkedin)" }}>
+                          LinkedIn
                         </button>
-                        <SaveBtn id={`story-${i}`} label={prompt} platform="Video" />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </Card>
-
-              {/* Philosophical Connections */}
-              <Card className="p-5">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-[15px] font-semibold" style={{ color: "var(--text)" }}>3 Philosophical Connections</span>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ color: "var(--gold)", background: "var(--gold-dim)" }}>3</span>
-                </div>
-                {output.philosophicalConnections.map((conn, i) => (
-                  <div key={i} className="flex items-start gap-2.5 py-2.5 border-b border-[var(--line)] last:border-b-0">
-                    <span className="w-1.5 h-1.5 rounded-full mt-2 flex-shrink-0" style={{ background: "var(--gold)" }} />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[13.5px] leading-relaxed mb-1.5" style={{ color: "var(--text-2)" }}>{conn}</p>
-                      <div className="flex gap-1.5">
-                        <button onClick={() => goTo("/substack", conn)}
+                        <button onClick={() => goTo("/substack", topic)}
                           className="text-[11px] px-2 py-0.5 rounded border cursor-pointer"
                           style={{ fontFamily: "inherit", background: "transparent", borderColor: "var(--substack)", color: "var(--substack)" }}>
-                          Write it
+                          Substack
                         </button>
-                        <SaveBtn id={`phil-${i}`} label={conn} platform="Substack" />
+                        <SaveBtn id={`rel-${i}`} label={topic} plat={platform} />
                       </div>
                     </div>
                   </div>
                 ))}
               </Card>
-            </div>
 
-            {/* Business Metaphors */}
-            <Card className="p-5 mt-5">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-[15px] font-semibold" style={{ color: "var(--text)" }}>3 Business Metaphors</span>
-                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ color: "var(--gold)", background: "var(--gold-dim)" }}>3</span>
-              </div>
-              {output.businessMetaphors.map((metaphor, i) => (
-                <div key={i} className="flex items-start gap-2.5 py-2.5 border-b border-[var(--line)] last:border-b-0">
-                  <span className="w-1.5 h-1.5 rounded-full mt-2 flex-shrink-0" style={{ background: "var(--gold)" }} />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[13.5px] leading-relaxed mb-1.5" style={{ color: "var(--text-2)" }}>{metaphor}</p>
-                    <div className="flex gap-1.5">
-                      <button onClick={() => goTo("/linkedin", metaphor)}
-                        className="text-[11px] px-2 py-0.5 rounded border cursor-pointer"
-                        style={{ fontFamily: "inherit", background: "transparent", borderColor: "var(--linkedin)", color: "var(--linkedin)" }}>
-                        Write it
-                      </button>
-                      <SaveBtn id={`meta-${i}`} label={metaphor} platform="LinkedIn" />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </Card>
+            </div>
           </div>
         )}
       </div>

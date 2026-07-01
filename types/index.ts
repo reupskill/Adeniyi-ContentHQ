@@ -59,6 +59,16 @@ export interface DailyInspirationOutput {
   businessMetaphors: string[]
 }
 
+export interface ContentRiverOutput {
+  freshAngles: string[]
+  videoHooks: string[]
+  linkedinAngles: string[]
+  xPostIdeas: string[]
+  substackAngles: string[]
+  pullQuotes: string[]
+  relatedTopics: string[]
+}
+
 export interface CalendarDay {
   id: string
   calendarDate: string

@@ -26,6 +26,7 @@ export default function SubstackPage() {
   const [streaming, setStreaming] = useState(false)
   const [streamText, setStreamText] = useState("")
   const [sections, setSections] = useState<Record<string, string> | null>(null)
+  const [teaser, setTeaser] = useState<string>("")
   const { showToast } = useAppStore()
   const abortRef = useRef<AbortController | null>(null)
 
@@ -35,6 +36,7 @@ export default function SubstackPage() {
     setStreaming(true)
     setStreamText("")
     setSections(null)
+    setTeaser("")
     abortRef.current = new AbortController()
 
     try {
@@ -64,7 +66,10 @@ export default function SubstackPage() {
             const parsed = JSON.parse(data)
             if (parsed.text) setStreamText((t) => t + parsed.text)
             if (parsed.done) {
-              setSections(parsed.sections || {})
+              const allSections = parsed.sections || {}
+              const { teaser: t, ...rest } = allSections
+              setSections(rest)
+              if (t) setTeaser(t)
               showToast("Essay generated and saved", "ok")
             }
           } catch {}
@@ -129,6 +134,19 @@ export default function SubstackPage() {
                       </div>
                     )
                   })}
+
+                  {teaser && (
+                    <Card className="p-5 mt-2" style={{ borderLeft: "3px solid var(--gold)", borderRadius: "0 12px 12px 0", background: "linear-gradient(135deg, rgba(201,169,110,0.07), transparent)" }}>
+                      <div className="flex items-start justify-between gap-3 mb-3">
+                        <div>
+                          <div className="text-[11px] font-semibold tracking-[0.13em] uppercase mb-0.5" style={{ color: "var(--gold)" }}>Teaser</div>
+                          <div className="text-[11.5px]" style={{ color: "var(--text-3)" }}>Share this on LinkedIn or X to drive readers to the full essay</div>
+                        </div>
+                        <Button size="sm" variant="secondary" onClick={() => navigator.clipboard.writeText(teaser).then(() => showToast("Teaser copied!", "ok"))}>Copy</Button>
+                      </div>
+                      <p className="text-[14.5px] leading-relaxed" style={{ color: "var(--cream)", fontFamily: "var(--font-serif, serif)" }}>{teaser}</p>
+                    </Card>
+                  )}
                 </div>
               )}
           </div>

@@ -17,26 +17,27 @@ Return post ready to copy-paste. Separate multiple variations with ---`,
 Style: sharp, contrarian, reflective. Strong opening. Simple explanation. Sharp insight. Memorable close.
 Never generic motivational content. Sound like a real founder from lived experience. No hashtag spam.`,
 
-  substack: `You are a ghostwriter for a founder writing a thoughtful Substack essay.
-Tone: reflective, philosophical, grounded — like a long-form journal entry from a builder who has seen things.
+  substack: `You are a ghostwriter for Adeniyi Babajide writing a thoughtful Substack essay.
+Tone: reflective, philosophical, grounded — like a long-form journal entry from a builder who has seen things and thought hard about them.
 NOT a listicle. NOT corporate. Real thinking on the page.
 Use these labelled sections:
-TITLE OPTIONS | SUBTITLE | OPENING STORY | MAIN ARGUMENT | SECTION 1 | SECTION 2 | SECTION 3 | PRACTICAL REFLECTION | CLOSING PARAGRAPH | NEWSLETTER CTA`,
+TITLE OPTIONS | SUBTITLE | OPENING STORY | MAIN ARGUMENT | SECTION 1 | SECTION 2 | SECTION 3 | PRACTICAL REFLECTION | CLOSING PARAGRAPH | NEWSLETTER CTA | TEASER
 
-  dailyInspiration: `You are a content strategist for a thoughtful founder.
-Given real life and business context, generate content ideas that turn personal observations into universal lessons.
-Patterns: business as metaphor for life, philosophy to explain modern problems, challenge shallow success advice.
+TEASER: After NEWSLETTER CTA, write a TEASER section. This is 2-3 sentences that function as a "thriller" — a compelling hook to share on LinkedIn or X before linking to the full essay. It should open with the sharpest insight from the essay, create genuine curiosity about what the full piece contains, and feel like Adeniyi wrote it himself. Plain prose. No hashtags. No quotes around lines. No "Check out my new essay." End with something that creates a sense of urgency or incompleteness.`,
+
+  contentRiver: `You are a content strategist for Adeniyi Babajide — a founder, builder, and thought leader.
+Given a piece of content Adeniyi has already written, generate a rich set of new content ideas that branch from that writing.
+The goal: one good piece produces many more ideas. Deepen sub-points into full pieces, find adjacent lessons, pull out standalone lines, explore the counter-argument.
 CRITICAL: Return ONLY valid JSON. No preamble, no explanation, no markdown fences. Raw JSON only.
 Required shape:
 {
-  "contentIdeas": ["10 specific content ideas"],
-  "videoHooks": ["5 scroll-stopping hooks"],
-  "linkedinAngles": ["5 LinkedIn angles"],
-  "xPostIdeas": ["5 X post ideas"],
-  "substackAngles": ["3 essay angles"],
-  "storyPrompts": ["3 personal story prompts"],
-  "philosophicalConnections": ["3 philosophical connections"],
-  "businessMetaphors": ["3 business metaphors"]
+  "freshAngles": ["10 new angles or topics inspired by this content — each is a complete idea for a new piece, not a variation of the same title"],
+  "videoHooks": ["5 compelling video hooks that explore the core theme of this content"],
+  "linkedinAngles": ["5 LinkedIn post angles that build on or branch from this content"],
+  "xPostIdeas": ["5 short punchy X/Twitter posts inspired by ideas embedded in this content"],
+  "substackAngles": ["3 deeper essay angles that expand something touched on in this content"],
+  "pullQuotes": ["5 powerful lines or insights from this content that could stand alone as posts"],
+  "relatedTopics": ["3 adjacent topic ideas this content touches on that are worth exploring as their own pieces"]
 }`,
 
   scriptAnalyser: `You are an expert video script analyst for thought leadership content.

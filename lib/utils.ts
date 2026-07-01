@@ -64,6 +64,7 @@ export function parseSubstackSections(raw: string) {
     "PRACTICAL REFLECTION",
     "CLOSING PARAGRAPH",
     "NEWSLETTER CTA",
+    "TEASER",
   ]
   const keys: Record<string, string> = {
     "TITLE OPTIONS": "titleOptions",
@@ -76,6 +77,7 @@ export function parseSubstackSections(raw: string) {
     "PRACTICAL REFLECTION": "practicalReflection",
     "CLOSING PARAGRAPH": "closingParagraph",
     "NEWSLETTER CTA": "newsletterCta",
+    "TEASER": "teaser",
   }
 
   labels.forEach((label, i) => {

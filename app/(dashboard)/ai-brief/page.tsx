@@ -21,8 +21,8 @@ function renderLine(line: string, i: number): React.ReactNode {
   if (!line.trim()) return <div key={i} className="h-1.5" />
   if (line.trim() === "---") return <hr key={i} className="my-4 border-0 border-t" style={{ borderColor: "var(--line-2)" }} />
 
-  // Case Study header: skip — rendered by CaseStudyBlock
-  if (/^\*\*Case Study \d+:.*\*\*$/.test(line.trim())) return null
+  // Example / Case Study header: skip — rendered by CaseStudyBlock
+  if (/^\*\*(?:Case Study|Example) \d+:.*\*\*$/.test(line.trim())) return null
 
   // "Read more" / Search link — renders prominently as a source reference
   const searchMatch = line.match(/^[-*]?\s*\*?\*?Search:\*?\*?\s*(.+)/)
@@ -123,8 +123,8 @@ function parseCaseStudyBlocks(body: string): Array<{ num: string; headline: stri
   let current: { num: string; headline: string; lines: string[] } | null = null
 
   for (const line of lines) {
-    // Match "**Case Study N: Company — description**" or "**Case Study N: Company**"
-    const match = line.trim().match(/^\*\*Case Study (\d+): (.+)\*\*$/)
+    // Match "**Example N: Company — description**" or "**Case Study N: Company**" (legacy)
+    const match = line.trim().match(/^\*\*(?:Case Study|Example) (\d+): (.+)\*\*$/)
     if (match) {
       if (current) blocks.push(current)
       current = { num: match[1], headline: match[2], lines: [line] }
@@ -215,7 +215,7 @@ function BriefSection({
 }) {
   const num = title.match(/^(\d+)/)?.[1] || (title.startsWith("Today") ? "Today" : "")
   const color = SECTION_COLORS[num] || "var(--text-3)"
-  // Section 2 is "The Evidence: 5 Case Studies"
+  // Section 2 is "The Evidence: 5 Examples"
   const isCaseStudies = num === "2"
 
   return (
@@ -329,7 +329,7 @@ function NewsletterSlider({
           style={{ borderBottom: "1px solid var(--line)" }}>
           <div className="flex-1 min-w-0 pr-4">
             <div className="text-[11px] font-semibold tracking-[0.12em] uppercase mb-1.5"
-              style={{ color: "var(--gold)" }}>Trust Economy Brief · LinkedIn + Substack</div>
+              style={{ color: "var(--gold)" }}>With Adeniyi Babajide · LinkedIn + Substack</div>
             <p className="text-[14px] font-semibold leading-snug" style={{ color: "var(--text)" }}>
               {headline}
             </p>
@@ -347,7 +347,7 @@ function NewsletterSlider({
             style={{ background: "var(--gold-dim)", borderBottom: "1px solid var(--gold-line)" }}>
             <div className="w-2 h-2 rounded-full animate-pulse-glow flex-shrink-0" style={{ background: "var(--gold)" }} />
             <span className="text-[12px] font-medium" style={{ color: "var(--gold)" }}>
-              Writing newsletter… {wordCount} words
+              Writing edition… {wordCount} words
             </span>
           </div>
         )}
@@ -402,7 +402,7 @@ function NewsletterSlider({
                     style={{ background: "var(--gold)", animationDelay: `${i * 0.2}s` }} />
                 ))}
               </div>
-              <p className="text-[13px]" style={{ color: "var(--text-3)" }}>Writing today's newsletter…</p>
+              <p className="text-[13px]" style={{ color: "var(--text-3)" }}>Writing today&apos;s edition…</p>
             </div>
           )}
 
@@ -468,7 +468,7 @@ function LabOutput({ result, platforms }: { result: LabResult; platforms: string
         <Card className="p-6" style={{ borderLeft: "3px solid var(--gold)", borderRadius: "0 12px 12px 0" }}>
           <div className="flex items-center justify-between mb-4">
             <div className="text-[11px] font-semibold tracking-[0.13em] uppercase" style={{ color: "var(--gold)" }}>
-              Newsletter · LinkedIn + Substack
+              With Adeniyi Babajide · LinkedIn + Substack
             </div>
             <Button size="sm" variant="secondary" onClick={() => navigator.clipboard.writeText(result.newsletter!).then(() => showToast("Newsletter copied!", "ok"))}>Copy</Button>
           </div>
@@ -634,7 +634,7 @@ export default function AIBriefPage() {
 
   return (
     <>
-      <Topbar title="AI" sub="Daily intelligence · content generation" />
+      <Topbar title="Daily Brief" sub="With Adeniyi Babajide · leadership, building, culture, execution" />
       <div className="px-8 py-7 max-w-[900px] w-full mx-auto pb-16">
         <div className="mb-6">
           <Tabs options={["Daily Brief", "Content Lab"]} value={activeTab} onChange={setActiveTab} />
@@ -647,7 +647,7 @@ export default function AIBriefPage() {
               <div>
                 <p className="text-[13px]" style={{ color: "var(--text-3)" }}>{today}</p>
                 <p className="text-[11.5px] mt-0.5" style={{ color: "var(--text-faint)" }}>
-                  Trust Economy · Fintech · AI · Identity · Payments · Africa · Product · Growth · Leadership
+                  Leadership · Building · Culture · Execution · Growth · Decision-Making · Teams · Africa
                 </p>
               </div>
               <div className="flex gap-2">
@@ -675,9 +675,9 @@ export default function AIBriefPage() {
                       <line x1="10" y1="9" x2="8" y2="9"/>
                     </svg>
                   </div>
-                  <p className="font-serif text-[21px] mb-2" style={{ color: "var(--text)" }}>The Trust Economy Brief</p>
+                  <p className="font-serif text-[21px] mb-2" style={{ color: "var(--text)" }}>With Adeniyi Babajide</p>
                   <p className="text-[13px] max-w-[460px] mx-auto leading-relaxed mb-6" style={{ color: "var(--text-3)" }}>
-                    Daily research intelligence with 5 stories, content angles, and ready-to-publish drafts for X, LinkedIn, and Substack — all through the Trust Economy lens.
+                    Adeniyi&apos;s point of view on leadership, building, culture, execution, and the decisions that shape people, products, and companies. 5 real-world examples, content angles, and ready-to-publish drafts.
                   </p>
                   <Button variant="primary" onClick={generateBrief}>Generate Today's Brief</Button>
                 </div>
@@ -702,7 +702,7 @@ export default function AIBriefPage() {
                           style={{ background: "var(--gold)", animationDelay: `${i * 0.2}s` }} />
                       ))}
                     </div>
-                    <p className="text-[13px]" style={{ color: "var(--text-3)" }}>Researching today's stories…</p>
+                    <p className="text-[13px]" style={{ color: "var(--text-3)" }}>Developing today&apos;s conviction…</p>
                   </div>
                 </Card>
               )
@@ -711,7 +711,7 @@ export default function AIBriefPage() {
             {sections && (
               <div className="fade-seq">
                 <div className="flex gap-3 mb-5 flex-wrap">
-                  {[{ label: "Stories", value: "5" }, { label: "Angles", value: "5" }, { label: "Drafts", value: "4" }, { label: "Words", value: wordCount.toString() }].map(({ label, value }) => (
+                  {[{ label: "Examples", value: "5" }, { label: "Angles", value: "5" }, { label: "Drafts", value: "4" }, { label: "Words", value: wordCount.toString() }].map(({ label, value }) => (
                     <div key={label} className="flex items-center gap-2 px-3 py-1.5 rounded-lg"
                       style={{ background: "var(--surface-2)", border: "1px solid var(--line)" }}>
                       <span className="text-[15px] font-semibold" style={{ color: "var(--gold)" }}>{value}</span>

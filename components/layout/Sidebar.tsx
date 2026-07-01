@@ -11,7 +11,7 @@ const NAV_ITEMS = [
   { href: "/linkedin",  label: "LinkedIn",           icon: "linkedin" },
   { href: "/twitter",   label: "X / Twitter",        icon: "x" },
   { href: "/substack",  label: "Substack",           icon: "substack" },
-  { href: "/daily",     label: "Daily Inspiration",  icon: "lightbulb" },
+  { href: "/daily",     label: "Content River",       icon: "lightbulb" },
   { href: "/ai-brief",  label: "AI Brief",           icon: "aibrief" },
   { href: "/analyzer",  label: "Script Analyzer",    icon: "target" },
   { href: "/bank",      label: "Content Bank",       icon: "archive" },
