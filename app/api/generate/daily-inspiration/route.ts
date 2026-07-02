@@ -49,13 +49,18 @@ export async function POST(req: Request) {
       content.trim(),
     ].join("\n")
 
-    const raw = await generateContent(SYSTEM_PROMPTS.contentRiver, contextLines, 3000)
+    const raw = await generateContent(SYSTEM_PROMPTS.contentRiver, contextLines, 4096)
 
     let output: ContentRiverOutput
     try {
-      const cleaned = raw.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim()
-      output = JSON.parse(cleaned)
-    } catch {
+      // Strip markdown fences, then find the JSON object
+      const stripped = raw.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim()
+      const start = stripped.indexOf("{")
+      const end = stripped.lastIndexOf("}")
+      if (start === -1 || end === -1) throw new Error("No JSON object found")
+      output = JSON.parse(stripped.slice(start, end + 1))
+    } catch (parseErr) {
+      console.error("[content-river] JSON parse failed. Raw response:", raw.slice(0, 500))
       return NextResponse.json({ error: "Failed to parse response. Please retry." }, { status: 500 })
     }
 
